@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """data_exploration.ipynb"""
 
-import shutil
 import pandas as pd
 import numpy as np
 from pathlib import Path
@@ -11,10 +10,7 @@ import sys
 src_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(src_path))
 
-from utils.file_utils import read_excel_file, read_csv_file, write_to_csv
-
-#Ustawienie braku maksymalnej ilości wyświetlanych kolumn
-pd.options.display.max_columns = None
+from utils.dataframe_utils import read_csv_file, write_to_csv
 
 np.random.seed(42)
 
@@ -127,7 +123,7 @@ def filter_dataframe(dataframe, **filters):
         dataframe (pd.DataFrame): The DataFrame to filter.
         **filters: Key-value pairs where the key is the column name and the value is the filter criterion.
                    The value can be a single value or a list of values for filtering.
-                   Example: filter_dataframe(df, Age1=30, Gender=['F', 'M'])
+                   Example: filter_dataframe(df, GroupAge1=30, Gender=['F', 'M'])
 
     Returns:
         pd.DataFrame: The filtered DataFrame that matches all the filter conditions, 
@@ -226,7 +222,7 @@ df_duplicated = df_raw[df_raw['ID'].duplicated()].ID
 #%%
 #df_data & df_context
 context_columns = [col for col in df_raw.columns if col.startswith('Context_')]
-df_context = df_raw[context_columns + ["Age1", "Gender", "ID"]]
+df_context = df_raw[context_columns + ["GroupAge1", "Gender", "ID"]]
 df_data = df_raw.drop(columns=context_columns, inplace=False)
 
 #%%
@@ -236,8 +232,8 @@ missing_data_rows = nan_exploration_in_rows(df_data)
 
 
 #%%
-# Drop rows with NaN in Gender, Age1, Date
-selected_index = df_data[df_data['Gender'].isna() | df_data['Age1'].isna() | df_data['Date'].isna()].index
+# Drop rows with NaN in Gender, GroupAge1, Date
+selected_index = df_data[df_data['Gender'].isna() | df_data['GroupAge1'].isna() | df_data['Date'].isna()].index
 df_data = df_data.drop(index=selected_index)
 df_context = df_context.drop(index=selected_index)
 
@@ -247,7 +243,7 @@ df_data["AbuseInfo"] = df_data["AbuseInfo"].fillna("Not")
 
 #%%
 """#Fill NaN in age groups"""
-age_groups = sorted(list(set(df_data['Age1'])))
+age_groups = sorted(list(set(df_data['GroupAge1'])))
 gender_groups = sorted(list(set(df_data['Gender'])))
 columns = df_data.columns.to_list()
 
@@ -257,7 +253,7 @@ imputed_df = df_data.copy()
 #%%
 for age_group in age_groups:
     for gender_group in gender_groups:
-        filtered_data = filter_dataframe(df_data, Age1=age_group, Gender=gender_group)
+        filtered_data = filter_dataframe(df_data, GroupAge1=age_group, Gender=gender_group)
         selected_columns = filter_columns_by_missing_data(filtered_data, accept_probability=accept_probability, columns=None)
         for column_name in filtered_data.columns.tolist():
             if column_name in selected_columns:
@@ -272,9 +268,9 @@ for age_group in age_groups:
                 if later_age_group is not None:
                     neighboring_age_groups.append(later_age_group)
     
-                neighboring_data = filter_dataframe(df_data, Age1=neighboring_age_groups, Gender=gender_group)
+                neighboring_data = filter_dataframe(df_data, GroupAge1=neighboring_age_groups, Gender=gender_group)
                 imputed_neighboring_values = fill_missing_values_by_probability(neighboring_data, column_name)
-                filtered_imputed_values = filter_dataframe(imputed_neighboring_values, Age1=age_group, Gender=gender_group)
+                filtered_imputed_values = filter_dataframe(imputed_neighboring_values, GroupAge1=age_group, Gender=gender_group)
                 imputed_df.loc[filtered_imputed_values.index, column_name] = filtered_imputed_values[column_name]
 
 #%%
@@ -285,7 +281,7 @@ imputed_df_context = pd.DataFrame(columns=df_context.columns)
 for age_group in age_groups:
     for gender_group in gender_groups:
         # Filter the data based on age and gender groups
-        filtered_data = filter_dataframe(df_context, Age1=age_group, Gender=gender_group)
+        filtered_data = filter_dataframe(df_context, GroupAge1=age_group, Gender=gender_group)
         
         # Find rows where all context columns have 0
         rows_without_context = filtered_data[filtered_data[context_columns].sum(axis=1) == 0]
@@ -326,7 +322,7 @@ for age_group in age_groups:
         imputed_df_context = pd.concat([imputed_df_context, filtered_data], ignore_index=False)
                 
 #%%
-imputed_df_context.drop(columns=['Age1', 'Gender'], inplace=True)
+imputed_df_context.drop(columns=['GroupAge1', 'Gender'], inplace=True)
 
 
 #%%

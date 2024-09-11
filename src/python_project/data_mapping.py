@@ -10,7 +10,7 @@ import sys
 src_path = Path(__file__).resolve().parent.parent
 sys.path.append(str(src_path))
 
-from utils.file_utils import read_excel_file, read_csv_file, write_to_csv
+from utils.dataframe_utils import read_excel_file, read_csv_file, write_to_csv
 
 pd.options.display.max_columns = None
 
@@ -54,28 +54,28 @@ df_raw_2023['Date'] = df_raw_2023['DateM'] + '.' + df_raw_2023['DateY']
 
 
 column = 'Przedział_wiekowy'
-df_raw_2023.rename(columns={column: 'Age1'}, inplace=True)
+df_raw_2023.rename(columns={column: 'GroupAge1'}, inplace=True)
 
-df_raw_2023['Age1'].unique()
+df_raw_2023['GroupAge1'].unique()
 
-column = 'Age1'
+column = 'GroupAge1'
 mapping = {
-    "7-12": '07-12',
-    '13-18': '13-18',
-    '19-24': '19-24',
-    '25-29': '25-29',
-    '30-34': '30-34',
-    '35-39': '35-39',
-    '40-44': '40-44',
-    '45-49': '45-49',
-    '50-54': '50-54',
-    '55-59': '55-59',
-    '60-64': '60-64',
-    '65-69': '65-69',
-    '70-74': '70-74',
-    '75-79': '75-79',
-    '80-84': '80-84',
-    '85+': '85+',
+    "7-12": '07_12',
+    '13-18': '13_18',
+    '19-24': '19_24',
+    '25-29': '25_29',
+    '30-34': '30_34',
+    '35-39': '35_39',
+    '40-44': '40_44',
+    '45-49': '45_49',
+    '50-54': '50_54',
+    '55-59': '55_59',
+    '60-64': '60_64',
+    '65-69': '65_69',
+    '70-74': '70_74',
+    '75-79': '75_79',
+    '80-84': '80_84',
+    '85+': '85',
     'Nieustalony wiek': np.nan
 }
 
@@ -86,28 +86,28 @@ checking = df_raw_2023[column].unique()
 #%%
 """Age"""
 
-df_raw_2023['Age2'] = df_raw_2023['Age1']
+df_raw_2023['GroupAge2'] = df_raw_2023['GroupAge1']
 
-df_raw_2023['Age2'].unique()
+df_raw_2023['GroupAge2'].unique()
 
-column = 'Age2'
+column = 'GroupAge2'
 mapping = {
-    "07-12": '00-18',
-    '13-18': '00-18',
-    '19-24': '19-34',
-    '25-29': '19-34',
-    '30-34': '19-34',
-    '35-39': '35-64',
-    '40-44': '35-64',
-    '45-49': '35-64',
-    '50-54': '35-64',
-    '55-59': '35-64',
-    '60-64': '35-64',
-    '65-69': '65+',
-    '70-74': '65+',
-    '75-79': '65+',
-    '80-84': '65+',
-    '85+': '65+'
+    "07_12": '00_18',
+    '13_18': '00_18',
+    '19_24': '19_34',
+    '25_29': '19_34',
+    '30_34': '19_34',
+    '35_39': '35_64',
+    '40_44': '35_64',
+    '45_49': '35_64',
+    '50_54': '35_64',
+    '55_59': '35_64',
+    '60_64': '35_64',
+    '65_69': '65',
+    '70_74': '65',
+    '75_79': '65',
+    '80_84': '65',
+    '85': '65'
 }
 
 df_raw_2023[column] = df_raw_2023[column].map(mapping)
@@ -158,7 +158,7 @@ df_raw_2023['Wykształcenie'].unique()
 column = 'Wykształcenie'
 mapping = {
     'Brak danych/nieustalone': np.nan,
-    'Podstawowe niepełne': 'Pre-primary',
+    'Podstawowe niepełne': 'PrePrimary',
     'Podstawowe': 'Primary',
     'Gimnazjalne': 'Secondary',
     'Zasadnicze zawodowe': 'Vocational',
@@ -270,9 +270,9 @@ mapping = {
     'Rzucenie się pod pojazd w ruchu': 'Vehicle',
     'Rzucenie się z wysokości': 'Jumping',
     'Powieszenie się': 'Hanging',
-    'Uszkodzenie układu krwionośnego': 'Self-harm',
+    'Uszkodzenie układu krwionośnego': 'SelfHarm',
     'Zastrzelenie się/użycie broni palnej': 'Schooting',
-    'Samookaleczenie powierzchowne': 'Self-harm',
+    'Samookaleczenie powierzchowne': 'SelfHarm',
     'Zażycie środków nasennych/leków psychotropowych': 'Drugs',
     'Zatrucie gazem/spalinami': 'Gas',
     'Zażycie innych leków': 'Drugs',
@@ -280,7 +280,7 @@ mapping = {
     'Zatrucie środkami odurzającymi': 'Drugs',
     'Zatrucie dopalaczami': 'Drugs',
     'Utonięcie/utopienie się': 'Drowning',
-    'Samopodpalenie': 'Self-harm',
+    'Samopodpalenie': 'SelfHarm',
     'Uduszenie się': 'Other',
     'Inny': 'Other'
 }
@@ -423,12 +423,12 @@ mapping = {
     'Pod wpływem zastępczych środków/substancji (dopalaczy)': 'OtherSub',
     'Pod wpływem leków': 'OtherSub',
     'Pod wpływem środków odurzających': 'OtherSub',
-    'Pod wpływem alkoholu i zastępczych środków/substancji (dopalaczy)': 'Alco&OtherSub',
-    'Pod wpływem alkoholu zastępczych środków/substancji (dopalaczy)': 'Alco&OtherSub',
+    'Pod wpływem alkoholu i zastępczych środków/substancji (dopalaczy)': 'AlcoOtherSub',
+    'Pod wpływem alkoholu zastępczych środków/substancji (dopalaczy)': 'AlcoOtherSub',
     'Pod wpływem alkoholu i leków': 'Alco&OtherSub',
-    'Pod wpływem alkoholu i środków odurzających': 'Alco&OtherSub',
+    'Pod wpływem alkoholu i środków odurzających': 'AlcoOtherSub',
     'Pod wpływem leków i środków odurzających': 'OtherSub',
-    'Pod wpływem alkoholu, leków i środków odurzających': 'Alco&OtherSub'
+    'Pod wpływem alkoholu, leków i środków odurzających': 'AlcoOtherSub'
 }
 
 df_raw_2023[column] = df_raw_2023[column].map(mapping)
@@ -447,7 +447,7 @@ mapping = {
     'Nadużywał(a) alkoholu': 'Alco',
     'Leczony(a) z powodu alkoholizmu': 'Alco',
     'Leczony(a) z powodu narkomanii': 'OtherSub',
-    'Leczony(a) z powodu alkoholizmu i narkomanii': 'Alco&OtherSub'
+    'Leczony(a) z powodu alkoholizmu i narkomanii': 'AlcoOtherSub'
 }
 
 df_raw_2023[column] = df_raw_2023[column].map(mapping)
@@ -466,16 +466,16 @@ mapping = {
     'Choroba fizyczna': np.nan,
     'Trwałe kalectwo': np.nan,
     'Zatrzymany(a) w izbie wytrzeźwień': 'Alco',
-    'Nadużywał(a) alkoholu i narkotyków': 'Alco&OtherSub',
-    'Nadużywał(a) alkoholu i nakrotyków': 'Alco&OtherSub',
+    'Nadużywał(a) alkoholu i narkotyków': 'AlcoOtherSub',
+    'Nadużywał(a) alkoholu i nakrotyków': 'AlcoOtherSub',
     'Leczony(a) z powodu narkomanii': 'OtherSub',
     'Używał dopalaczy i narkotyków': 'OtherSub',
     'Nadużywał(a) alkoholu i narkotykó': 'OtherSub',
-    'Nadużywał(a) alkoholu, dopalaczy i narkotyków': 'Alco&OtherSub',
-    'Nadużywał(a) alkoholu, narkotyków i dopalaczy': 'Alco&OtherSub',
-    'Nadużywał(a) alkoholu i dopalaczy': 'Alco&OtherSub',
+    'Nadużywał(a) alkoholu, dopalaczy i narkotyków': 'AlcoOtherSub',
+    'Nadużywał(a) alkoholu, narkotyków i dopalaczy': 'AlcoOtherSub',
+    'Nadużywał(a) alkoholu i dopalaczy': 'AlcoOtherSub',
     'Używał dopalaczy': 'OtherSub',
-    'Nadużywał(a) alkoholu, dopalaczy, narkotyków': 'Alco&OtherSub',
+    'Nadużywał(a) alkoholu, dopalaczy, narkotyków': 'AlcoOtherSub',
     'Leczony(a) psychiatrycznie, nadużywał(a) alkoholu': 'Alco',
 }
 
@@ -549,52 +549,52 @@ df_raw_2013_2022['Date'] = df_raw_2013_2022['DateM'] + '.' + df_raw_2013_2022['D
 column = 'Przedział_wiekowy'
 mapping = {
     0: np.nan,
-    1: '07-12',
-    2: '13-18',
-    3: '19-24',
-    4: '25-29',
-    5: '30-34',
-    6: '35-39',
-    7: '40-44',
-    8: '45-49',
-    9: '50-54',
-    10: '55-59',
-    11: '60-64',
-    12: '65-69',
-    13: '70-74',
-    14: '75-79',
-    15: '80-84',
-    16: '85+'
+    1: '07_12',
+    2: '13_18',
+    3: '19_24',
+    4: '25_29',
+    5: '30_34',
+    6: '35_39',
+    7: '40_44',
+    8: '45_49',
+    9: '50_54',
+    10: '55_59',
+    11: '60_64',
+    12: '65_69',
+    13: '70_74',
+    14: '75_79',
+    15: '80_84',
+    16: '85'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)
-df_raw_2013_2022.rename(columns={column: 'Age1'}, inplace=True)
+df_raw_2013_2022.rename(columns={column: 'GroupAge1'}, inplace=True)
 
-df_raw_2013_2022['Age2']=df_raw_2013_2022['Age1']
+df_raw_2013_2022['GroupAge2']=df_raw_2013_2022['GroupAge1']
 
-column = 'Age2'
+column = 'GroupAge2'
 mapping = {
-    "07-12": '00-18',
-    '13-18': '00-18',
-    '19-24': '19-34',
-    '25-29': '19-34',
-    '30-34': '19-34',
-    '35-39': '35-64',
-    '40-44': '35-64',
-    '45-49': '35-64',
-    '50-54': '35-64',
-    '55-59': '35-64',
-    '60-64': '35-64',
-    '65-69': '65+',
-    '70-74': '65+',
-    '75-79': '65+',
-    '80-84': '65+',
-    '85+': '65+'
+    "07_12": '00_18',
+    '13_18': '00_18',
+    '19_24': '19_34',
+    '25_29': '19_34',
+    '30_34': '19_34',
+    '35_39': '35_64',
+    '40_44': '35_64',
+    '45_49': '35_64',
+    '50_54': '35_64',
+    '55_59': '35_64',
+    '60_64': '35_64',
+    '65_69': '65',
+    '70_74': '65',
+    '75_79': '65',
+    '80_84': '65',
+    '85': '65'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)
 
-checking = df_raw_2013_2022['Age2'].unique()
+checking = df_raw_2013_2022['GroupAge2'].unique()
 
 #%%
 """###Płeć"""
@@ -636,7 +636,7 @@ checking = df_raw_2013_2022['Marital'].unique()
 column = 'Wykształcenie'
 mapping = {
     0: np.nan,
-    1: 'Pre-primary',
+    1: 'PrePrimary',
     2: 'Primary',
     3: 'Secondary',
     4: 'Vocational',
@@ -741,10 +741,10 @@ mapping = {
     1: 'Vehicle',
     2: 'Jumping',
     3: 'Hanging',
-    4: 'Self-harm',
+    4: 'SelfHarm',
     5: 'Schooting',
-    6: 'Self-harm',
-    7: 'Self-harm',
+    6: 'SelfHarm',
+    7: 'SelfHarm',
     8: 'Drugs',
     9: 'Poisoning',
     10: 'Gas',
@@ -753,7 +753,7 @@ mapping = {
     13: 'Drugs',
     14: 'Drugs',
     15: 'Drowning',
-    16: 'Self-harm',
+    16: 'SelfHarm',
     17: 'Other',
     18: 'Other'
 }
@@ -899,18 +899,18 @@ mapping = {
     4: 'OtherSub',
     5: 'OtherSub',
     6: 'OtherSub',
-    7: 'Alco&OtherSub',
-    8: 'Alco&OtherSub',
-    9: 'Alco&OtherSub',
-    10: 'Alco&OtherSub',
-    11: 'Alco&OtherSub',
+    7: 'AlcoOtherSub',
+    8: 'AlcoOtherSub',
+    9: 'AlcoOtherSub',
+    10: 'AlcoOtherSub',
+    11: 'AlcoOtherSub',
     12: 'OtherSub',
     13: 'OtherSub',
     14: 'OtherSub',
     15: 'OtherSub',
     16: 'OtherSub',
-    17: 'Alco&OtherSub',
-    18: 'Alco&OtherSub'
+    17: 'AlcoOtherSub',
+    18: 'AlcoOtherSub'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)
@@ -927,10 +927,10 @@ mapping = {
     1: 'Alco',
     2: 'OtherSub',
     3: 'OtherSub',
-    4: 'Alco&OtherSub',
+    4: 'AlcoOtherSub',
     5: 'OtherSub',
-    6: 'Alco&OtherSub',
-    7: 'Alco&OtherSub'
+    6: 'AlcoOtherSub',
+    7: 'AlcoOtherSub'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)
@@ -946,7 +946,7 @@ mapping = {
     0: np.nan,
     1: 'Alco',
     2: 'OtherSub',
-    3: 'Alco&OtherSub'
+    3: 'AlcoOtherSub'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)
