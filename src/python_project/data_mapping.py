@@ -121,8 +121,8 @@ df_raw_2023.rename(columns={'Płeć': 'Gender'}, inplace=True)
 
 column = 'Gender'
 mapping = {
-    "Kobieta": 'F',
-    "Mężczyzna": 'M'
+    "Kobieta": '0',
+    "Mężczyzna": '1'
 }
 
 df_raw_2023[column] = df_raw_2023[column].map(mapping)
@@ -425,7 +425,7 @@ mapping = {
     'Pod wpływem środków odurzających': 'OtherSub',
     'Pod wpływem alkoholu i zastępczych środków/substancji (dopalaczy)': 'AlcoOtherSub',
     'Pod wpływem alkoholu zastępczych środków/substancji (dopalaczy)': 'AlcoOtherSub',
-    'Pod wpływem alkoholu i leków': 'Alco&OtherSub',
+    'Pod wpływem alkoholu i leków': 'AlcoOtherSub',
     'Pod wpływem alkoholu i środków odurzających': 'AlcoOtherSub',
     'Pod wpływem leków i środków odurzających': 'OtherSub',
     'Pod wpływem alkoholu, leków i środków odurzających': 'AlcoOtherSub'
@@ -602,8 +602,8 @@ checking = df_raw_2013_2022['GroupAge2'].unique()
 column = 'Płeć'
 mapping = {
     0: np.nan,
-    1: 'F',
-    2: 'M'
+    1: '0',
+    2: '1'
 }
 
 df_raw_2013_2022[column] = df_raw_2013_2022[column].map(mapping)

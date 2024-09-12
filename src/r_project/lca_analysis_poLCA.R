@@ -1,83 +1,91 @@
 library(dplyr)
 library(here)
+#install.packages("poLCA")
 library(poLCA)
 
 # Define the path to the CSV file
-data_path <- normalizePath(file.path(here(), "..", "..", "data", "imputed", "imputed_data.csv"))
+data_path <- normalizePath(file.path(here(), "..", "..", "data", "encoded", "encoded_data.csv"))
 
 # Read the CSV file into a data frame
-data_raw <- read.csv(data_path, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+encoded_data <- read.csv(data_path, header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
-# Define the columns to include in the analysis
-factor_columns <- c("Education",
-                    "Age2",
-                    "WorkInfo",
-                    "AbuseInfo",
-                    "Gender",                                  
-                    "Income",                
-                    "Substance",
-                    "Marital",           
-                    "Method",                
-                    "Place",
-                    "Fatal")
-
-context_columns <- c("Context_Finances",      
-                     "Context_HeartBreak",
-                     "Context_Disability",
-                     "Context_SchoolWork",    
-                     "Context_CloseDeath",
-                     "Context_HealthLoss",
-                     "Context_MentalHealth",  
-                     "Context_Crime",
-                     "Context_Other",
-                     "Context_FamilyConflict")
-
-# Combine factor and context columns
-selected_columns <- c(factor_columns, context_columns)
-
-# Select relevant columns from the data frame
-data_selected <- dplyr::select(data_raw, dplyr::all_of(selected_columns))
-
-# Function to add an underscore to column names
-add_underscore <- function(df, columns) {
-  # Check if all columns are present in the data frame
-  missing_cols <- setdiff(columns, colnames(df))
-  if (length(missing_cols) > 0) {
-    stop("Missing columns: ", paste(missing_cols, collapse = ", "))
+encoded_data[] <- lapply(encoded_data, function(x) {
+  if (all(x %in% c("True", "False"))) {  # Check if the column contains only "True" or "False"
+    return(as.integer(x == "True"))  # Convert "True" to 1, "False" to 0
+  } else {
+    return(x)  # Leave other columns unchanged
   }
-  
-  # Add an underscore to column names
-  new_colnames <- paste0(colnames(df)[colnames(df) %in% columns], "_")
-  colnames(df)[colnames(df) %in% columns] <- new_colnames
-  
-  return(df)
-}
+})
 
-# Define columns to which underscore will be added, excluding "Fatal"
-underscore_columns <- setdiff(factor_columns, "Fatal")
+subset_data <- encoded_data
 
-# Apply underscore to selected columns
-data_selected <- add_underscore(data_selected, underscore_columns)
+# Lista prefiksów kolumn do wybrania
+selected_prefixes <- c('Fatal', 'Income', 'Method', 'Education',
+                       'WorkInfo', 'Substance', 'Place', 'Marital', 'Context', 'Gender', 'GroupAge')
 
-# Perform one-hot encoding
-encoded_data <- model.matrix(~ . - 1, data = data_selected)
+#selected_prefixes <- c('Method', 'Education')
 
-# Convert the matrix to a data frame if necessary
-if (is.matrix(encoded_data) || is.array(encoded_data)) {
-  encoded_data <- as.data.frame(encoded_data)
-}
+# Wybieranie kolumn, których nazwy zaczynają się od dowolnego z prefiksów
+selected_columns <- grep(paste0("^(", paste(selected_prefixes, collapse = "|"), ")"), 
+                         names(subset_data), value = TRUE)
 
-# Replace dashes with underscores in column names
-colnames(encoded_data) <- gsub("-", "_", colnames(encoded_data))
-# Rename the column
-colnames(encoded_data) <- gsub("Age2_65+", "Age2_65", colnames(encoded_data))
+# Tworzenie nowego zbioru danych zawierającego tylko wybrane kolumny
+filtered_data <- subset_data[, selected_columns]
 
+# Recode the data to start from 1
+filtered_data <- filtered_data + 1
 
+#encoded_data[] <- lapply(encoded_data, as.factor)
+#encoded_data[] <- lapply(encoded_data, function(x) as.integer(as.factor(x)))
 
 # Perform Latent Class Analysis
-lca_formula <- as.formula(paste("~", paste(colnames(encoded_data), collapse = " + ")))
-n_classes <- 3
-lca_result <- poLCA(lca_formula, data = encoded_data, nclass = n_classes, na.rm = TRUE)
+lca_formula <- as.formula(paste("cbind(", paste(colnames(filtered_data), collapse = ", "), ") ~ 1"))
+
+#lca_result <- poLCA(lca_formula, data = filtered_data, nclass = 2, na.rm = TRUE)
+lca_result <- poLCA(lca_formula, data = filtered_data, nclass = 3, na.rm = TRUE)
 
 # Print the result of the Latent Class Analysis
 print(lca_result)
+
+
+
+
+
+#TEST on sample
+sample_data <- encoded_data[1:100, c("Fatal", "Context_Other", "Context_FamilyConflict")]
+lca_formula <- cbind(Fatal, Context_Other, Context_FamilyConflict) ~ 1
+lca_result <- poLCA(lca_formula, data = sample_data, nclass = 2, na.rm = TRUE)
+
+
+
+#TEST
+# Set seed for reproducibility
+set.seed(123)
+
+# Generate sample data: 5 binary variables (0, 1)
+n_samples <- 1000
+data <- data.frame(
+  var1 = sample(0:1, n_samples, replace = TRUE),
+  var2 = sample(0:1, n_samples, replace = TRUE),
+  var3 = sample(0:1, n_samples, replace = TRUE),
+  var4 = sample(0:1, n_samples, replace = TRUE),
+  var5 = sample(0:1, n_samples, replace = TRUE)
+)
+
+# Recode the data to start from 1
+data <- data + 1
+
+str(data)
+
+# Run Latent Class Analysis with 2 classes
+lca_formula2 <- as.formula(cbind(var1, var2, var3, var4, var5) ~ 1)
+lca_result <- poLCA(lca_formula, data = data, nclass = 2, na.rm = FALSE, nrep = 30, maxiter = 3000)
+
+# View LCA results
+print(lca_result)
+
+# Show class memberships (powinny pokazać przypisanie klas)
+print(lca_result$predclass)
+
+# Show probabilities of item-response for each class (powinny pokazać prawdopodobieństwa dla każdej zmiennej)
+print(lca_result$probs)
