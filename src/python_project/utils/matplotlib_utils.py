@@ -188,190 +188,295 @@ def create_multi_series_bar_chart_matplotlib(data, ax=None, **kwargs):
     - data: List of dictionaries, where each dictionary represents a dataset to plot.
             The keys of the dictionaries are used as the x-axis labels.
     - ax: Matplotlib axis object to plot on. If None, creates a new axis.
-    - fill_missing: Boolean, whether to fill missing keys with 0 (default is True).
-    - invert_axes: Boolean, whether to invert the axes (default is False).
     - kwargs: Additional keyword arguments for customization.
     
     Returns:
     - ax: Matplotlib axis with the created bar plot.
     """
-    
-    # Extract all unique keys from the data to use as labels for the x-axis
-    labels = sorted(set().union(*(d.keys() for d in data)))
-    
     # Retrieve keyword arguments or use defaults
-    fill_missing = kwargs.get('fill_missing', True),
-    invert_axes = kwargs.get('invert_axes', False),
-    legend_labels = kwargs.get('legend_labels', [f'Series {i+1}' for i in range(len(data))])
-    bar_colors = kwargs.get('bar_colors', plt.cm.tab10.colors)
-    plot_title = kwargs.get('plot_title', 'Multiple Bar Plot')
-    x_label = kwargs.get('x_label', 'Categories')
-    y_label = kwargs.get('y_label', 'Values')
-    bar_width = kwargs.get('bar_width', 0.35)
-    legend_position = kwargs.get('legend_position', 'best')
-    show_grid = kwargs.get('show_grid', False)
-    show_x_grid = kwargs.get('show_x_grid', False)
-    show_y_grid = kwargs.get('show_y_grid', False)
-    show_values = kwargs.get('show_values', False)
-    value_format = kwargs.get('value_format', "{:.1f}")
-    x_label_rotation = kwargs.get('x_label_rotation', 0)
-    y_label_rotation = kwargs.get('y_label_rotation', 0)
-    value_rotation = kwargs.get('value_rotation', 0)
-    title_position = kwargs.get('title_position', 'center')
-    show_legend = kwargs.get('show_legend', True)
-    show_x_labels = kwargs.get('show_x_labels', True)
-    show_y_labels = kwargs.get('show_y_labels', True)
-    show_x_values = kwargs.get('show_x_values', True)
-    show_y_values = kwargs.get('show_y_values', True)
-    alpha = kwargs.get('alpha', 1.0)  # Default is fully opaque
-    y_axis_margin = kwargs.get('y_axis_margin', 0.05)
-    y_grid_midpoint = kwargs.get('y_grid_midpoint', None)
+    fill_missing = kwargs.get('fill_missing', True)
+    invert_axes = kwargs.get('invert_axes', False)
     
-    x_grid_midpoint = kwargs.get('x_grid_midpoint', None)
-    # Only create a default dictionary if x_grid_midpoint is not provided
-    if x_grid_midpoint is not None and isinstance(x_grid_midpoint, dict):
-        # Ensure defaults are used if the dictionary is missing some keys
-        x_grid_midpoint = {**{
-            'value': None,
-            'linewidth': 1.5,
-            'dashes': (10, 5),
-            'color': 'gray',
-            'linestyle': '--'
-        }, **x_grid_midpoint}
-    else:
-        # If it's None or not provided, no need to create anything
-        x_grid_midpoint = None
-
-
-
+    # Title
+    title_props = kwargs.get('title_props', {})
+    title_props = {
+        'text': title_props.get('text', 'Multiple Bar Plot'),
+        'color': title_props.get('color', 'black'),
+        'fontsize': title_props.get('fontsize', 12),
+        'position': title_props.get('position', 'center')
+    }
+    
+    # Axis labels
+    axis_label_props = kwargs.get('axis_label_props', {})
+    axis_label_props = {
+        'x_label': axis_label_props.get('x_label', 'Categories'),
+        'x_label_show': axis_label_props.get('x_label_show', True),
+        'x_color': axis_label_props.get('x_color', 'black'),
+        'x_fontsize': axis_label_props.get('x_fontsize', 10),
+        'y_label': axis_label_props.get('y_label', 'Values'),
+        'y_label_show': axis_label_props.get('y_label_show', True),
+        'y_color': axis_label_props.get('y_color', 'black'),
+        'y_fontsize': axis_label_props.get('y_fontsize', 10)
+    }
+    
+    # Legend
+    legend_props = kwargs.get('legend_props', {})
+    legend_props = {
+        'show_legend': legend_props.get('show_legend', True),
+        'legend_labels': legend_props.get('legend_labels', [f'Series {i+1}' for i in range(len(data))]),
+# =============================================================================
+#         'location': legend_props.get('location', 'best'),
+#         'fontsize': legend_props.get('fontsize', 10),
+#         'text_color': legend_props.get('text_color', 'black'),
+#         'frame_on': legend_props.get('frame_on', True),
+#         'frame_color': legend_props.get('frame_color', 'gray'),
+#         'frame_alpha': legend_props.get('frame_alpha', 0.8),
+#         'background_alpha': legend_props.get('background_alpha', 0.5),
+#         'ncol': legend_props.get('ncol', 1),
+#         'borderpad': legend_props.get('borderpad', 1),
+#         'labelspacing': legend_props.get('labelspacing', 0.5),
+#         'handlelength': legend_props.get('handlelength', 2),
+#         'handletextpad': legend_props.get('handletextpad', 0.5)
+# =============================================================================
+    }
+    
+    # Ticks
+    ticks_props = kwargs.get('ticks_props', {})
+    ticks_props = {
+        'show_xticks': ticks_props.get('show_xticks', True),
+        'x_fontsize': ticks_props.get('x_fontsize', 10),
+        'x_color': ticks_props.get('x_color','black'),
+        'x_rotation': ticks_props.get('x_rotation',0),
+        'x_alignment': ticks_props.get('x_alignment', 'center'),
+        'show_yticks': ticks_props.get('show_yticks', True),
+        'y_fontsize': ticks_props.get('y_fontsize', 10),
+        'y_color': ticks_props.get('y_color','black'),
+        'y_rotation': ticks_props.get('y_rotation',0),
+        'y_alignment': ticks_props.get('y_alignment', 'center'),
+    }
+    
+    # Bars
+    bar_props = kwargs.get('bar_props', {})
+    bar_props = {
+        'color': bar_props.get('color', plt.cm.tab10.colors),
+        'alpha': bar_props.get('alpha', 0.8),
+        'width': bar_props.get('width', 0.8),
+        'edgecolor': bar_props.get('edgecolor', 'black'),
+        'linewidth': bar_props.get('linewidth', 1.0),
+        'hatch': bar_props.get('hatch', None),
+        'align': bar_props.get('align', 'center'),
+        'zorder': bar_props.get('zorder', 2)
+    }
+    
+    # Grid
+    grid_props = kwargs.get('grid_props', {})
+    grid_props = {
+        'show_grid': grid_props.get('show_grid', True),
+        'axis': grid_props.get('axis', 'both'),
+        'color': grid_props.get('color', 'gray'),
+        'linestyle': grid_props.get('linestyle', '--'),
+        'linewidth': grid_props.get('linewidth', 0.5),
+        'alpha': grid_props.get('alpha', 0.7),
+        'which': grid_props.get('which', 'major'),
+        'zorder': grid_props.get('zorder', 1)
+    }
+    
+    # Value labels
+    value_labels_props = kwargs.get('value_labels_props', {})
+    value_labels_props = {
+        'show': value_labels_props.get('show', False),
+        'format': value_labels_props.get('format', "{:.1f}"),
+        'rotation': value_labels_props.get('rotation', 0),
+        'color': value_labels_props.get('color', 'black'),
+        'fontsize': value_labels_props.get('fontsize', 10),
+        'fontweight': value_labels_props.get('fontweight', 'normal'),
+        'va': value_labels_props.get('va', 'bottom'),
+        'ha': value_labels_props.get('ha', 'center'),
+        'offset': value_labels_props.get('offset', 5)
+    }
+    
+    # Additional line
+    additional_line = kwargs.get('additional_line', None)
+# =============================================================================
+#     additional_line = {
+#         'axis': additional_line.get('axis', 'y'),
+#         'coefficients': additional_line.get('coefficients', [0, 0]),
+#         'color': additional_line.get('color', 'red'),
+#         'linewidth': additional_line.get('linewidth', 2),
+#         'linestyle': additional_line.get('linestyle', '--'),
+#         'alpha': additional_line.get('alpha', 0.8)
+#     }
+# =============================================================================
+    
+    # Margins
+    margins_props = kwargs.get('margins_props', {})
+    margins_props = {
+        'x_margin': margins_props.get('x_margin', 0.05),
+        'y_margin': margins_props.get('y_margin', 0.05),
+        #'x_axis_padding': margins_props.get('x_axis_padding', 0.1),
+        #'y_axis_padding': margins_props.get('y_axis_padding', 0.1),
+    }
+    
+    # Extract all unique keys from the data to use as ticks
+    ticks = sorted(set().union(*(d.keys() for d in data)))
+    
     # Prepare the data for plotting, filling in missing keys if necessary
     plot_data = []
     for d in data:
         if fill_missing:
-            plot_data.append([d.get(label, 0) for label in labels])
+            plot_data.append([d.get(tick, 0) for tick in ticks])
         else:
-            plot_data.append([d[label] if label in d else None for label in labels])
+            plot_data.append([d[tick] if tick in d else None for tick in ticks])
 
     # If no axis is provided, create one
     if ax is None:
         fig, ax = plt.subplots()
 
     # Calculate positions for the bars
-    num_categories = len(labels)
-    total_width = bar_width * len(data)
+    num_categories = len(ticks)
+    total_width = bar_props['width'] * len(data)
     spacing = (1 - total_width) / (num_categories + 1)
-    x = np.arange(num_categories) * (total_width + spacing)
+    bar_positions = np.arange(num_categories) * (total_width + spacing)
 
     for i, series in enumerate(plot_data):
         if invert_axes:  # If axes are inverted, create horizontal bars
-            bars = ax.barh(x + i * bar_width, series, bar_width, label=legend_labels[i], 
-                           color=bar_colors[i], alpha=alpha)
+            bars = ax.barh(
+                bar_positions + i * bar_props['width'],
+                series,
+                bar_props['width'],
+                label=legend_props['legend_labels'][i], 
+                color=bar_props['color'][i],
+                alpha=bar_props['alpha']
+            )
         else:
-            bars = ax.bar(x + i * bar_width, series, bar_width, label=legend_labels[i], 
-                          color=bar_colors[i], alpha=alpha)
+            bars = ax.bar(
+                bar_positions + i * bar_props['width'],
+                series,
+                bar_props['width'],
+                label=legend_props['legend_labels'][i], 
+                color=bar_props['color'][i],
+                alpha=bar_props['alpha']
+            )
 
         # Add values on top of the bars
-        if show_values:
+        if value_labels_props['show']:
             for bar in bars:
                 value = bar.get_width() if invert_axes else bar.get_height()
                 if value != 0:
                     if invert_axes:
-                        ax.text(value, bar.get_y() + bar.get_height() / 2,
-                                value_format.format(value), va='center', ha='left', rotation=value_rotation)
+                        ax.text(
+                            value,
+                            bar.get_y() + bar.get_height() / 2,
+                            value_labels_props['format'].format(value),
+                            va=value_labels_props['va'],
+                            ha=value_labels_props['ha'],
+                            rotation=value_labels_props['rotation']
+                        )
                     else:
-                        ax.text(bar.get_x() + bar.get_width() / 2, value,
-                                value_format.format(value), ha='center', va='bottom', rotation=value_rotation)
+                        ax.text(
+                            bar.get_x() + bar.get_width() / 2,
+                            value,
+                            value_labels_props['format'].format(value),
+                            va=value_labels_props['va'],
+                            ha=value_labels_props['ha'],
+                            rotation=value_labels_props['rotation']
+                        )
 
-    # Customize the plot
-    ax.set_title(plot_title, loc=title_position)
+    # Title
+    ax.set_title(
+        title_props['text'],
+        color=title_props['color'],
+        fontsize=title_props['fontsize'],
+        loc=title_props['position']
+    )
 
+    # Axis labels
     if invert_axes:
-        if show_x_labels:
-            ax.set_xlabel(y_label)  # X-axis should show 'Values' (now horizontal)
-        else:
-            ax.set_xlabel("")
-
-        if show_y_labels:
-            ax.set_yticks(x + bar_width * (len(data) - 1) / 2)
-            ax.set_yticklabels(labels, rotation=x_label_rotation)
-        else:
-            ax.set_ylabel("")
-
-        if show_x_values:
-            ax.xaxis.set_visible(True)
-        else:
+        ax.set_ylabel(
+            axis_label_props['y_label'],
+            color=axis_label_props['y_color'],
+            fontsize=axis_label_props['y_fontsize']
+        )
+        ax.set_yticks(bar_positions + bar_props['width'] * (len(data) - 1) / 2)
+        ax.set_yticklabels(ticks, rotation=ticks_props['x_rotation'])
+        if not ticks_props['show_xticks']:
             ax.xaxis.set_visible(False)
-
-        if show_y_values:
-            ax.set_yticks(x + bar_width * (len(data) - 1) / 2)  # Y-axis now shows categories (previous X values)
-            ax.set_yticklabels(labels,  rotation=y_label_rotation)  # Label categories on Y-axis
-        else:
-            ax.set_yticks([])
-
     else:
-        if show_x_labels:
-            ax.set_xlabel(x_label)
-        else:
-            ax.set_xlabel("")
-
-        if show_y_labels:
-            ax.set_ylabel(y_label)
-        else:
-            ax.set_ylabel("")
-
-        if show_x_values:
-            ax.set_xticks(x + bar_width * (len(data) - 1) / 2)
-            ax.set_xticklabels(labels, rotation=x_label_rotation)
-        else:
-            ax.set_xticks([])
-
-        if show_y_values:
-            ax.yaxis.set_visible(True)
-        else:
+        ax.set_xlabel(
+            axis_label_props['x_label'],
+            color=axis_label_props['x_color'],
+            fontsize=axis_label_props['x_fontsize']
+        )
+        ax.set_xticks(bar_positions + bar_props['width'] * (len(data) - 1) / 2)
+        ax.set_xticklabels(ticks, rotation=ticks_props['x_rotation'])
+        if not ticks_props['show_yticks']:
             ax.yaxis.set_visible(False)
-
-    # Show grid based on user settings
-    if show_grid:
-        ax.grid(True)
-    if show_x_grid:
-        ax.xaxis.grid(True)
-    if show_y_grid:
-        ax.yaxis.grid(True)
+            
+    # Ticks
+    if ticks_props['show_xticks']:
+       ax.tick_params(axis='x', 
+                      labelsize=ticks_props['x_fontsize'], 
+                      labelcolor=ticks_props['x_color'], 
+                      rotation=ticks_props['x_rotation'], 
+                      labelleft=ticks_props['x_alignment'])
+       
+    if ticks_props['show_yticks']:
+        ax.tick_params(axis='y', 
+                       labelsize=ticks_props['y_fontsize'], 
+                       labelcolor=ticks_props['y_color'], 
+                       rotation=ticks_props['y_rotation'], 
+                       labelleft=ticks_props['y_alignment'])
     
-    if x_grid_midpoint and x_grid_midpoint['value'] is not None:  # Proceed if x_grid_midpoint has a value
-        # Get the current x-axis limits
-        x_min, x_max = ax.get_xlim()
+    # Add additional line if needed
+    if additional_line:
+        if additional_line['axis'] == 'x':
+            ax.axvline(x=additional_line['coefficients'][0], color=additional_line['color'], linewidth=additional_line['linewidth'], linestyle=additional_line['linestyle'], alpha=additional_line['alpha'])
+        elif additional_line['axis'] == 'y':
+            ax.axhline(y=additional_line['coefficients'][0], color=additional_line['color'], linewidth=additional_line['linewidth'], linestyle=additional_line['linestyle'], alpha=additional_line['alpha'])
+    
+# =============================================================================
+#     # Set margins and paddings
+#     x_min = min(bar_positions) - margins_props['x_margin'] - margins_props['x_axis_padding']
+#     x_max = max(bar_positions) + total_width + margins_props['x_margin'] + margins_props['x_axis_padding']
+#     y_min = min(min(plot_data)) - margins_props['y_margin'] - margins_props['y_axis_padding']
+#     y_max = max(max(plot_data)) + margins_props['y_margin'] + margins_props['y_axis_padding']
+#     ax.set_xlim(x_min, x_max)
+#     ax.set_ylim(y_min, y_max)
+# =============================================================================
+    
+    ax.margins(x=margins_props['x_margin'], y=margins_props['y_margin'])
+    
+    # Grid
+    if grid_props['show_grid']:
+        ax.grid(
+            axis=grid_props['axis'],
+            color=grid_props['color'],
+            linestyle=grid_props['linestyle'],
+            linewidth=grid_props['linewidth'],
+            alpha=grid_props['alpha'],
+            which=grid_props['which'],
+            zorder=grid_props['zorder']
+        )
 
-        # Calculate midpoint if 'auto' or use the specified value
-        x_grid_midpoint['value'] = (x_min + x_max) / 2 if x_grid_midpoint['value'] == 'auto' else x_grid_midpoint['value']
-
-        # Set the x-axis limits
-        ax.set_xlim(x_grid_midpoint['value'] - (x_max - x_min) / 2, x_grid_midpoint['value'] + (x_max - x_min) / 2)
-
-        # Add vertical line at the midpoint
-        ax.axvline(x=x_grid_midpoint['value'], color=x_grid_midpoint['color'], linestyle=x_grid_midpoint['linestyle'], 
-                   linewidth=x_grid_midpoint['linewidth'], dashes=x_grid_midpoint['dashes'])
-        
-    # Set a custom Y-axis range if `y_grid_midpoint` is specified
-    if y_grid_midpoint is not None:
-        # Get the current y-axis limits
-        y_min, y_max = ax.get_ylim()
-        
-        # Calculate midpoint as the middle between y_min and y_max if y_grid_midpoint is True
-        midpoint = (y_min + y_max) / 2 if y_grid_midpoint == 'auto' else y_grid_midpoint
-
-        # Set the y-axis limit with midpoint in the center
-        ax.set_ylim(midpoint - (y_max - y_min) / 2, midpoint + (y_max - y_min) / 2)
-
-        # Ensure a grid line appears at the midpoint
-        ax.axhline(y=midpoint, color='gray', linestyle='--', linewidth=0.5)
-
-    # Set the Y-axis margins
-    ax.margins(y=y_axis_margin)
-        
-    # Show legend if enabled
-    if show_legend:
-        ax.legend(loc=legend_position)
+    # Legend
+    if legend_props['show_legend']:
+        ax.legend(
+            labels=legend_props['legend_labels'],
+# =============================================================================
+#             loc=legend_props['location'],
+#             fontsize=legend_props['fontsize'],
+#             frameon=legend_props['frame_on'],
+#             framealpha=legend_props['frame_alpha'],
+#             facecolor=legend_props['background_alpha'],
+#             edgecolor=legend_props['frame_color'],
+#             ncol=legend_props['ncol'],
+#             borderpad=legend_props['borderpad'],
+#             labelspacing=legend_props['labelspacing'],
+#             handlelength=legend_props['handlelength'],
+#             handletextpad=legend_props['handletextpad'],
+#             labelcolor=legend_props['text_color']
+# =============================================================================
+        )
 
     return ax
 
@@ -516,40 +621,11 @@ if __name__ == "__main__":
     fig, axes = create_subplots_matplotlib(n_plots=4, n_cols=2, figsize=(12, 8))
 
     # Use create_multiple_bar_plot to create plots in each subplot
-    create_multi_series_bar_chart_matplotlib(data1, ax=axes[0],
-                             plot_title="Plot 1",
-                             legend_labels=["Series 1", "Series 2", "Series 3"],
-                             bar_width = 0.20,
-                             show_values = True,
-                             x_label_rotation = 45,
-                             invert_axes = True)
+    create_multi_series_bar_chart_matplotlib(data1, ax=axes[0], title_props={'text': 'Wykres 1'}, legend_props={'legend_labels': ['Seria 1', 'Seria 2', 'Seria 3']})
+    create_multi_series_bar_chart_matplotlib(data2, ax=axes[1], title_props={'text': 'Wykres 2'}, legend_props={'legend_labels': ['Seria A', 'Seria B']}, bar_props={'color': ['red', 'green']})
+    create_multi_series_bar_chart_matplotlib(data3, ax=axes[2], title_props={'text': 'Wykres 3'}, invert_axes=True, legend_props={'legend_labels': ['Seria X', 'Seria Y']})
+    create_multi_series_bar_chart_matplotlib(data4, ax=axes[3], title_props={'text': 'Wykres 4'}, legend_props={'legend_labels': ['Seria P', 'Seria Q']}, bar_props={'alpha': 0.6}, ticks_props={'x_rotation': 45})
     
-    create_multi_series_bar_chart_matplotlib(data2,
-                             ax=axes[1],
-                             plot_title="Plot 2",
-                             legend_labels=["Series 1", "Series 2"],
-                             bar_width = 0.20,
-                             show_values = True,
-                             x_label_rotation = 45,
-                             invert_axes = True)
-    
-    create_multi_series_bar_chart_matplotlib(data3,
-                             ax=axes[2],
-                             plot_title="Plot 3",
-                             legend_labels=["Series 1", "Series 2"],
-                             bar_width = 0.20,
-                             show_values = True,
-                             x_label_rotation = 45,
-                             invert_axes = True)
-    
-    create_multi_series_bar_chart_matplotlib(data4,
-                             ax=axes[3],
-                             plot_title="Plot 4",
-                             legend_labels=["Series 1", "Series 2"],
-                             bar_width = 0.20,
-                             show_values = True,
-                             x_label_rotation = 45,
-                             invert_axes = True)
 
     # Adjust layout
     plt.tight_layout()

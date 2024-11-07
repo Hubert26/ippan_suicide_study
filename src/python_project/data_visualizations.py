@@ -222,7 +222,7 @@ for group in groups:
     n_plots = len(poLCA_classes)
     
     # Create subplots with 1 column and enough rows to accommodate all plots
-    fig, axes = create_subplots_matplotlib(n_plots, n_cols=n_plots, figsize=(30, n_plots * 5))
+    fig, axes = create_subplots_matplotlib(n_plots, n_cols=n_plots, figsize=(n_plots * 10, 50))
     
     group_data = filter_dataframe(df_encoded, Group = group)
     n_group = group_data['ID'].nunique()
@@ -240,28 +240,57 @@ for group in groups:
         data_y = true_counts.values.tolist()
         data_y = [x / n_class * 100 for x in data_y]
         
+            
         if i == 0:
-            show_y_values = True
+            show_yticks = True
         else:
-            show_y_values = False
+            show_yticks = False
             
         # Plot the distributions on the current axis using the custom plotting function
-        create_multi_series_bar_chart_matplotlib([dict(zip(data_x, data_y))], 
-                                 ax=ax,
-                                 bar_colors = [class_colors[i]],
-                                 plot_title=f"Class {poLCA_class}\n(n={n_class} [{percentage}%])",
-                                 y_label='Individuals, %',
-                                 bar_width=0.20,
-                                 x_label_rotation=90,
-                                 show_x_grid = True,
-                                 show_legend = False,
-                                 title_position = 'left',
-                                 show_x_labels = False,
-                                 show_y_values = show_y_values,
-                                 alpha = 0.5,
-                                 invert_axes = True,
-                                 y_axis_margin = 0.01,
-                                 x_grid_midpoint={'value': 50, 'linewidth': 2, 'color': 'red', 'dashes': (15, 10)})
+        create_multi_series_bar_chart_matplotlib(
+            [dict(zip(data_x, data_y))],
+            ax=ax,
+            invert_axes=True,
+            title_props={
+                'text': f"Class {poLCA_class}\n(n={n_class} [{percentage}%])",
+                'fontsize': 36,
+                'position': 'left'
+            },
+            axis_label_props={
+                'x_label': 'Individuals, %',
+                'y_label': '',
+                'x_fontsize': 26,
+                'x_label_show': True,
+                'y_label_show': False
+            },
+            legend_props={
+                'show_legend': False
+            },
+            ticks_props={
+                'show_yticks': show_yticks,
+                'y_fontsize': 16
+            },
+            bar_props={
+                'width': 0.20,
+                'alpha': 0.5,
+                'color': [class_colors[i]]
+            },
+            grid_props={
+                'show_grid': True,
+                'axis': 'x'
+            },
+            additional_line={
+                'axis': 'x',
+                'coefficients': [0, 50],
+                'linewidth': 2,
+                'color': 'red',
+                'linestyle': ':',
+                'alpha': 0.5
+            },
+            margins_props={
+                'y_margin': 0.05,
+            }
+        )
     
     # Adjust the layout of the plots to avoid overlap
     plt.tight_layout()
