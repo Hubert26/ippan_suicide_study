@@ -1,0 +1,470 @@
+#================================================================================
+#poLCA for Group_E 0 
+#================================================================================
+Conditional item response (column) probabilities,
+ by outcome variable, for each class (row) 
+ 
+$Context_Finances
+           Pr(1)  Pr(2)
+class 1:  0.9386 0.0614
+class 2:  0.9530 0.0470
+class 3:  0.9424 0.0576
+class 4:  0.9409 0.0591
+class 5:  0.9517 0.0483
+
+$Context_Disability
+           Pr(1)  Pr(2)
+class 1:  0.9969 0.0031
+class 2:  0.9968 0.0032
+class 3:  0.9963 0.0037
+class 4:  0.9981 0.0019
+class 5:  0.9984 0.0016
+
+$Context_Crime
+           Pr(1)  Pr(2)
+class 1:  0.9969 0.0031
+class 2:  0.9969 0.0031
+class 3:  0.9994 0.0006
+class 4:  0.9966 0.0034
+class 5:  0.9979 0.0021
+
+$Context_FamilyConflict
+           Pr(1)  Pr(2)
+class 1:  0.8261 0.1739
+class 2:  0.8380 0.1620
+class 3:  0.8408 0.1592
+class 4:  0.8153 0.1847
+class 5:  0.8034 0.1966
+
+$Context_MentalHealth
+           Pr(1)  Pr(2)
+class 1:  0.5777 0.4223
+class 2:  0.5069 0.4931
+class 3:  0.4820 0.5180
+class 4:  0.5410 0.4590
+class 5:  0.6021 0.3979
+
+$Context_SchoolWork
+           Pr(1)  Pr(2)
+class 1:  0.9855 0.0145
+class 2:  0.9676 0.0324
+class 3:  0.9823 0.0177
+class 4:  0.9830 0.0170
+class 5:  0.9761 0.0239
+
+$Context_Other
+           Pr(1)  Pr(2)
+class 1:  0.8435 0.1565
+class 2:  0.8974 0.1026
+class 3:  0.8878 0.1122
+class 4:  0.8518 0.1482
+class 5:  0.8480 0.1520
+
+$Context_HealthLoss
+           Pr(1)  Pr(2)
+class 1:  0.9598 0.0402
+class 2:  0.9617 0.0383
+class 3:  0.9413 0.0587
+class 4:  0.9569 0.0431
+class 5:  0.9618 0.0382
+
+$Context_HeartBreak
+           Pr(1)  Pr(2)
+class 1:  0.9153 0.0847
+class 2:  0.9149 0.0851
+class 3:  0.9367 0.0633
+class 4:  0.9225 0.0775
+class 5:  0.8947 0.1053
+
+$Context_CloseDeath
+           Pr(1)  Pr(2)
+class 1:  0.9473 0.0527
+class 2:  0.9503 0.0497
+class 3:  0.9651 0.0349
+class 4:  0.9759 0.0241
+class 5:  0.9513 0.0487
+
+$Substance_Alco
+           Pr(1)  Pr(2)
+class 1:  0.0000 1.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.6241 0.3759
+class 5:  0.0000 1.0000
+
+$Substance_AlcoOtherSub
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.8549 0.1451
+class 3:  0.8692 0.1308
+class 4:  0.9628 0.0372
+class 5:  1.0000 0.0000
+
+$Substance_OtherSub
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.3804 0.6196
+class 3:  0.4945 0.5055
+class 4:  0.8210 0.1790
+class 5:  1.0000 0.0000
+
+$Substance_Sober
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.7647 0.2353
+class 3:  0.6362 0.3638
+class 4:  0.5921 0.4079
+class 5:  1.0000 0.0000
+
+$Place_Forest
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9195 0.0805
+class 5:  1.0000 0.0000
+
+$Place_House
+           Pr(1)  Pr(2)
+class 1:  0.0000 1.0000
+class 2:  0.0000 1.0000
+class 3:  0.0000 1.0000
+class 4:  0.6695 0.3305
+class 5:  0.0000 1.0000
+
+$Place_Institution
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9702 0.0298
+class 5:  1.0000 0.0000
+
+$Place_Isolation
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9972 0.0028
+class 5:  1.0000 0.0000
+
+$Place_Other
+          Pr(1) Pr(2)
+class 1:  1.000 0.000
+class 2:  1.000 0.000
+class 3:  1.000 0.000
+class 4:  0.786 0.214
+class 5:  1.000 0.000
+
+$Place_PoliceArmy
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9981 0.0019
+class 5:  1.0000 0.0000
+
+$Place_Railway
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9508 0.0492
+class 5:  1.0000 0.0000
+
+$Place_Road
+          Pr(1) Pr(2)
+class 1:  1.000 0.000
+class 2:  1.000 0.000
+class 3:  1.000 0.000
+class 4:  0.857 0.143
+class 5:  1.000 0.000
+
+$Place_School
+           Pr(1) Pr(2)
+class 1:  1.0000 0e+00
+class 2:  1.0000 0e+00
+class 3:  1.0000 0e+00
+class 4:  0.9995 5e-04
+class 5:  1.0000 0e+00
+
+$Place_UtilitySpaces
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9399 0.0601
+class 5:  1.0000 0.0000
+
+$Place_WaterRes
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9295 0.0705
+class 5:  1.0000 0.0000
+
+$Place_Work
+          Pr(1) Pr(2)
+class 1:  1.000 0.000
+class 2:  1.000 0.000
+class 3:  1.000 0.000
+class 4:  0.983 0.017
+class 5:  1.000 0.000
+
+$Education_Higher
+           Pr(1)  Pr(2)
+class 1:  0.8007 0.1993
+class 2:  0.7575 0.2425
+class 3:  0.7959 0.2041
+class 4:  0.7733 0.2267
+class 5:  0.7784 0.2216
+
+$Education_PrePrimary
+           Pr(1)  Pr(2)
+class 1:  0.9917 0.0083
+class 2:  0.9961 0.0039
+class 3:  0.9902 0.0098
+class 4:  0.9936 0.0064
+class 5:  0.9912 0.0088
+
+$Education_Primary
+           Pr(1)  Pr(2)
+class 1:  0.8055 0.1945
+class 2:  0.8420 0.1580
+class 3:  0.8373 0.1627
+class 4:  0.8254 0.1746
+class 5:  0.8385 0.1615
+
+$Education_Secondary
+           Pr(1)  Pr(2)
+class 1:  0.6486 0.3514
+class 2:  0.6432 0.3568
+class 3:  0.6221 0.3779
+class 4:  0.6426 0.3574
+class 5:  0.6466 0.3534
+
+$Education_Vocational
+           Pr(1)  Pr(2)
+class 1:  0.7534 0.2466
+class 2:  0.7612 0.2388
+class 3:  0.7544 0.2456
+class 4:  0.7650 0.2350
+class 5:  0.7453 0.2547
+
+$Method_Drowning
+           Pr(1)  Pr(2)
+class 1:  0.9989 0.0011
+class 2:  1.0000 0.0000
+class 3:  0.9998 0.0002
+class 4:  0.9355 0.0645
+class 5:  0.9999 0.0001
+
+$Method_Drugs
+           Pr(1)  Pr(2)
+class 1:  0.5562 0.4438
+class 2:  0.0000 1.0000
+class 3:  0.3113 0.6887
+class 4:  0.8536 0.1464
+class 5:  0.5046 0.4954
+
+$Method_Gas
+           Pr(1)  Pr(2)
+class 1:  0.9845 0.0155
+class 2:  1.0000 0.0000
+class 3:  0.9898 0.0102
+class 4:  0.9913 0.0087
+class 5:  0.9878 0.0122
+
+$Method_Hanging
+           Pr(1)  Pr(2)
+class 1:  0.8860 0.1140
+class 2:  1.0000 0.0000
+class 3:  0.9429 0.0571
+class 4:  0.8115 0.1885
+class 5:  0.8897 0.1103
+
+$Method_Jumping
+           Pr(1)  Pr(2)
+class 1:  0.9248 0.0752
+class 2:  1.0000 0.0000
+class 3:  0.9524 0.0476
+class 4:  0.8545 0.1455
+class 5:  0.9159 0.0841
+
+$Method_Other
+           Pr(1)  Pr(2)
+class 1:  0.9104 0.0896
+class 2:  1.0000 0.0000
+class 3:  0.9449 0.0551
+class 4:  0.8370 0.1630
+class 5:  0.9168 0.0832
+
+$Method_Poisoning
+           Pr(1)  Pr(2)
+class 1:  0.9867 0.0133
+class 2:  1.0000 0.0000
+class 3:  0.9909 0.0091
+class 4:  0.9789 0.0211
+class 5:  0.9917 0.0083
+
+$Method_Schooting
+           Pr(1) Pr(2)
+class 1:  1.0000 0e+00
+class 2:  1.0000 0e+00
+class 3:  1.0000 0e+00
+class 4:  0.9995 5e-04
+class 5:  1.0000 0e+00
+
+$Method_SelfHarm
+           Pr(1)  Pr(2)
+class 1:  0.7528 0.2472
+class 2:  1.0000 0.0000
+class 3:  0.8680 0.1320
+class 4:  0.7984 0.2016
+class 5:  0.7937 0.2063
+
+$Method_Vehicle
+           Pr(1)  Pr(2)
+class 1:  0.9998 0.0002
+class 2:  1.0000 0.0000
+class 3:  1.0000 0.0000
+class 4:  0.9397 0.0603
+class 5:  0.9999 0.0001
+
+$WorkInfo_Agriculturalist
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.9418 0.0582
+class 3:  1.0000 0.0000
+class 4:  0.9328 0.0672
+class 5:  0.9448 0.0552
+
+$WorkInfo_Employed
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.0604 0.9396
+class 3:  1.0000 0.0000
+class 4:  0.4195 0.5805
+class 5:  0.0558 0.9442
+
+$WorkInfo_Student
+           Pr(1)  Pr(2)
+class 1:  1.0000 0.0000
+class 2:  0.9978 0.0022
+class 3:  1.0000 0.0000
+class 4:  0.9986 0.0014
+class 5:  0.9994 0.0006
+
+$WorkInfo_Unemployed
+           Pr(1)  Pr(2)
+class 1:  0.0000 1.0000
+class 2:  1.0000 0.0000
+class 3:  0.0000 1.0000
+class 4:  0.6492 0.3508
+class 5:  1.0000 0.0000
+
+$Marital_Cohabitant
+           Pr(1)  Pr(2)
+class 1:  0.8636 0.1364
+class 2:  0.9064 0.0936
+class 3:  0.9091 0.0909
+class 4:  0.9244 0.0756
+class 5:  0.9016 0.0984
+
+$Marital_Divorced
+           Pr(1)  Pr(2)
+class 1:  0.8576 0.1424
+class 2:  0.8766 0.1234
+class 3:  0.8778 0.1222
+class 4:  0.8777 0.1223
+class 5:  0.8510 0.1490
+
+$Marital_Married
+           Pr(1)  Pr(2)
+class 1:  0.5133 0.4867
+class 2:  0.4307 0.5693
+class 3:  0.4483 0.5517
+class 4:  0.4157 0.5843
+class 5:  0.4650 0.5350
+
+$Marital_Separated
+           Pr(1)  Pr(2)
+class 1:  0.9964 0.0036
+class 2:  0.9929 0.0071
+class 3:  0.9945 0.0055
+class 4:  0.9907 0.0093
+class 5:  0.9939 0.0061
+
+$Marital_Single
+           Pr(1)  Pr(2)
+class 1:  0.8502 0.1498
+class 2:  0.8570 0.1430
+class 3:  0.8414 0.1586
+class 4:  0.8438 0.1562
+class 5:  0.8580 0.1420
+
+$Marital_Widowed
+           Pr(1)  Pr(2)
+class 1:  0.9189 0.0811
+class 2:  0.9364 0.0636
+class 3:  0.9290 0.0710
+class 4:  0.9477 0.0523
+class 5:  0.9305 0.0695
+
+$Income_Benefits
+           Pr(1)  Pr(2)
+class 1:  0.7580 0.2420
+class 2:  0.8458 0.1542
+class 3:  0.7168 0.2832
+class 4:  0.8173 0.1827
+class 5:  0.8529 0.1471
+
+$Income_Dependent
+           Pr(1)  Pr(2)
+class 1:  0.7039 0.2961
+class 2:  0.8617 0.1383
+class 3:  0.6922 0.3078
+class 4:  0.8158 0.1842
+class 5:  0.8718 0.1282
+
+$Income_NoSteady
+           Pr(1)  Pr(2)
+class 1:  0.8414 0.1586
+class 2:  0.9268 0.0732
+class 3:  0.8594 0.1406
+class 4:  0.8778 0.1222
+class 5:  0.9181 0.0819
+
+$Income_Steady
+           Pr(1)  Pr(2)
+class 1:  0.6966 0.3034
+class 2:  0.3657 0.6343
+class 3:  0.7316 0.2684
+class 4:  0.4891 0.5109
+class 5:  0.3572 0.6428
+
+Estimated class population shares 
+ 0.2186 0.1432 0.1827 0.2392 0.2163 
+ 
+Predicted class memberships (by modal posterior prob.) 
+ 0.2197 0.1445 0.1889 0.2262 0.2207 
+ 
+========================================================= 
+Fit for 5 latent classes: 
+========================================================= 
+number of observations: 8831 
+number of estimated parameters: 279 
+residual degrees of freedom: 8552 
+maximum log-likelihood: -129285.4 
+ 
+AIC(5): 259128.9
+BIC(5): 261105.9
+G^2(5): 113518 (Likelihood ratio/deviance statistic) 
+X^2(5): 4059215414 (Chi-square goodness of fit) 
+ 
+
+# Class counts
+
+   1    2    3    4    5 
+1940 1276 1668 1998 1949 

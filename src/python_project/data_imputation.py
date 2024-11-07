@@ -7,17 +7,13 @@ from pathlib import Path
 import sys
 
 
-src_path = Path(__file__).resolve().parent.parent
-sys.path.append(str(src_path))
-
+from config import *
 from utils.dataframe_utils import read_csv_file, write_to_csv
 
 np.random.seed(42)
 
 #%%
-current_working_directory = Path.cwd()
-grandparent_directory = current_working_directory.parent.parent
-output_file_path = grandparent_directory / 'data' / 'imputed'
+output_file_path = DATA_DIR / 'imputed'
 
 #%%
 
@@ -212,12 +208,10 @@ def fill_missing_values_by_probability(dataframe, column_name):
 
 #%%
 """#Data import"""
-csv_file_path = grandparent_directory / 'data' / 'mapped' / 'mapped_data.csv'
-df_raw = read_csv_file(csv_file_path, delimiter=',', low_memory=False, index_col=None, dtype={'DateY': str, 'DateM': str})
+csv_file_path = DATA_DIR / 'mapped' / 'mapped_data.csv'
+df_raw = read_csv_file(csv_file_path, low_memory=False)
+#df_raw = read_csv_file(csv_file_path, delimiter=',', low_memory=False, index_col=None, dtype={'DateY': str, 'DateM': str})
 
-#%%
-"""#Checking duplicated ID"""
-df_duplicated = df_raw[df_raw['ID'].duplicated()].ID
 
 #%%
 #df_data & df_context

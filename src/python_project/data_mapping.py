@@ -7,21 +7,17 @@ import numpy as np
 from pathlib import Path
 import sys
 
-src_path = Path(__file__).resolve().parent.parent
-sys.path.append(str(src_path))
-
+from config import *
 from utils.dataframe_utils import read_excel_file, read_csv_file, write_to_csv
 
 pd.options.display.max_columns = None
 
 #%%
-current_working_directory = Path.cwd()
-grandparent_directory = current_working_directory.parent.parent
-output_file_path = grandparent_directory / 'data' / 'mapped'
+output_file_path = DATA_DIR / 'mapped'
 
 #%%
 """# 2023"""
-excel_file_path = grandparent_directory / 'data' / 'raw' / 'Samobojstwa_2023.xlsx'
+excel_file_path = DATA_DIR / 'raw' / 'Samobojstwa_2023.xlsx'
 df_raw_2023 = read_excel_file(excel_file_path)
 
 #%%
@@ -34,8 +30,14 @@ df_raw_2023.rename(columns=lambda x: x.replace(' ', '_'), inplace=True)
 df_raw_2023.rename(columns={'Data_rejestracji': 'Date'}, inplace=True)
 
 #%%
-"""Daty"""
+"""ID"""
+non_numeric_ids = df_raw_2023[df_raw_2023['ID'].str.contains(r'\D', na=False)]
+nan_rows = df_raw_2023[df_raw_2023['ID'].isna()]
 
+df_raw_2023 = df_raw_2023[~df_raw_2023.index.isin(non_numeric_ids.index)]
+
+#%%
+"""Daty"""
 # Convert the 'Date' column to datetime format
 df_raw_2023['Date'] = pd.to_datetime(df_raw_2023['Date'])
 
@@ -137,7 +139,7 @@ df_raw_2023['Stan_cywilny'].unique()
 column = 'Stan_cywilny'
 mapping = {
     "Brak danych/nieustalony": np.nan,
-    "Kawaler/panna": 'Single ',
+    "Kawaler/panna": 'Single',
     "Konkubent/konkubina": 'Cohabitant',
     "Żonaty/zamężna": 'Married',
     "Separowany/separowana": 'Separated',
@@ -520,7 +522,7 @@ df_raw_2023['CountContext'] = df_context_2023.sum(axis=1)
 
 #%%
 """# 2013_2022"""
-csv_file_path = grandparent_directory / 'data' / 'raw' / 'final_samobojstwa_2013_2022.csv'
+csv_file_path = DATA_DIR / 'raw' / 'final_samobojstwa_2013_2022.csv'
 df_raw_2013_2022 = read_csv_file(csv_file_path, low_memory = False)
 
 #%%
@@ -531,6 +533,14 @@ df_raw_2013_2022.rename(columns={'ID samobójcy': 'ID'}, inplace=True)
 df_raw_2013_2022.rename(columns=lambda x: x.replace(' ', '_'), inplace=True)
 
 df_raw_2013_2022.rename(columns={'Data_raportu_[RRRRMM]': 'Date'}, inplace=True)
+
+#%%
+"""ID"""
+non_numeric_ids = df_raw_2013_2022[df_raw_2013_2022['ID'].str.contains(r'\D', na=False)]
+nan_rows = df_raw_2013_2022[df_raw_2013_2022['ID'].isna()]
+
+#%%
+
 
 #%%
 """Daty"""
@@ -1007,9 +1017,13 @@ df_raw = pd.concat([df_raw_2013_2022_selected, df_raw_2023_selected])
 
 df_context = pd.concat([df_context_2013_2022, df_context_2023])
 df_context.fillna(0, inplace=True)
-
+#%%
 out_preped_suicides = pd.concat([df_raw, df_context], axis=1)
 
+#%%
+# Resetowanie indeksów i przypisanie nowych indeksów do kolumny ID
+out_preped_suicides.reset_index(drop=True, inplace=True)
+out_preped_suicides['ID'] = out_preped_suicides.index
 
 #%%
 """#Zapis"""
