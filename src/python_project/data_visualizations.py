@@ -267,7 +267,7 @@ for group in groups:
                 'show_legend': False
             },
             ticks_props={
-                'show_yticks': show_yticks,
+                'show_yticks': False,#show_yticks,
                 'y_fontsize': 16
             },
             bar_props={
@@ -280,15 +280,17 @@ for group in groups:
                 'axis': 'x'
             },
             additional_line={
-                'axis': 'x',
-                'coefficients': [0, 50],
+                'show': True,
+                'axis': 'y',
+                'function': lambda x: 0*x+50,
                 'linewidth': 2,
                 'color': 'red',
                 'linestyle': ':',
                 'alpha': 0.5
             },
             margins_props={
-                'y_margin': 0.05,
+                'y_margin': 0.01,
+                'x_margin': 0.01
             }
         )
     

@@ -296,7 +296,17 @@ def create_multi_series_bar_chart_matplotlib(data, ax=None, **kwargs):
     }
     
     # Additional line
-    additional_line = kwargs.get('additional_line', None)
+    additional_line = kwargs.get('additional_line', {})
+    additional_line = {
+        'show': additional_line.get('show', False),
+        'show_in_legend': additional_line.get('show_in_legend', True),
+        'axis': additional_line.get('axis', 'x'),
+        'color': additional_line.get('color', 'gray'),
+        'linewidth': additional_line.get('linewidth', 2),
+        'linestyle': additional_line.get('linestyle', '--'),
+        'alpha': additional_line.get('alpha', 0.7),
+        'function': additional_line.get('function', lambda x: np.full_like(x, 0)),
+    }
 # =============================================================================
 #     additional_line = {
 #         'axis': additional_line.get('axis', 'y'),
@@ -311,8 +321,8 @@ def create_multi_series_bar_chart_matplotlib(data, ax=None, **kwargs):
     # Margins
     margins_props = kwargs.get('margins_props', {})
     margins_props = {
-        'x_margin': margins_props.get('x_margin', 0.05),
-        'y_margin': margins_props.get('y_margin', 0.05),
+        'x_margin': margins_props.get('x_margin', None),
+        'y_margin': margins_props.get('y_margin', None)
         #'x_axis_padding': margins_props.get('x_axis_padding', 0.1),
         #'y_axis_padding': margins_props.get('y_axis_padding', 0.1),
     }
@@ -428,12 +438,30 @@ def create_multi_series_bar_chart_matplotlib(data, ax=None, **kwargs):
                        labelleft=ticks_props['y_alignment'])
     
     # Add additional line if needed
-    if additional_line:
+    if additional_line['show']:
+        # Generate x or y values based on the axis
         if additional_line['axis'] == 'x':
-            ax.axvline(x=additional_line['coefficients'][0], color=additional_line['color'], linewidth=additional_line['linewidth'], linestyle=additional_line['linestyle'], alpha=additional_line['alpha'])
+            x_values = np.linspace(*ax.get_xlim(), 100)
+            y_values = additional_line['function'](x_values)
         elif additional_line['axis'] == 'y':
-            ax.axhline(y=additional_line['coefficients'][0], color=additional_line['color'], linewidth=additional_line['linewidth'], linestyle=additional_line['linestyle'], alpha=additional_line['alpha'])
-    
+            y_values = np.linspace(*ax.get_ylim(), 100)
+            x_values = additional_line['function'](y_values)
+        
+        # Plot the additional line if both x_values and y_values are available
+        if x_values is not None and y_values is not None:
+            ax.plot(
+                x_values, y_values,
+                color=additional_line['color'],
+                linewidth=additional_line['linewidth'],
+                linestyle=additional_line['linestyle'],
+                alpha=additional_line['alpha'],
+                label='Additional Line' if additional_line['show_in_legend'] else None
+            )
+        
+        # Show legend only if necessary
+        if (additional_line['show_in_legend'] and legend_props['show_legend']):
+            ax.legend()
+
 # =============================================================================
 #     # Set margins and paddings
 #     x_min = min(bar_positions) - margins_props['x_margin'] - margins_props['x_axis_padding']
@@ -443,8 +471,11 @@ def create_multi_series_bar_chart_matplotlib(data, ax=None, **kwargs):
 #     ax.set_xlim(x_min, x_max)
 #     ax.set_ylim(y_min, y_max)
 # =============================================================================
+    if margins_props['x_margin'] is not None:
+        ax.margins(x=margins_props['x_margin'])
     
-    ax.margins(x=margins_props['x_margin'], y=margins_props['y_margin'])
+    if margins_props['y_margin'] is not None:
+        ax.margins(y=margins_props['y_margin'])
     
     # Grid
     if grid_props['show_grid']:
@@ -622,9 +653,9 @@ if __name__ == "__main__":
 
     # Use create_multiple_bar_plot to create plots in each subplot
     create_multi_series_bar_chart_matplotlib(data1, ax=axes[0], title_props={'text': 'Wykres 1'}, legend_props={'legend_labels': ['Seria 1', 'Seria 2', 'Seria 3']})
-    create_multi_series_bar_chart_matplotlib(data2, ax=axes[1], title_props={'text': 'Wykres 2'}, legend_props={'legend_labels': ['Seria A', 'Seria B']}, bar_props={'color': ['red', 'green']})
-    create_multi_series_bar_chart_matplotlib(data3, ax=axes[2], title_props={'text': 'Wykres 3'}, invert_axes=True, legend_props={'legend_labels': ['Seria X', 'Seria Y']})
-    create_multi_series_bar_chart_matplotlib(data4, ax=axes[3], title_props={'text': 'Wykres 4'}, legend_props={'legend_labels': ['Seria P', 'Seria Q']}, bar_props={'alpha': 0.6}, ticks_props={'x_rotation': 45})
+    create_multi_series_bar_chart_matplotlib(data2, ax=axes[1], title_props={'text': 'Wykres 2'}, legend_props={'legend_labels': ['Seria A', 'Seria B']}, bar_props={'color': ['red', 'green']}, additional_line={'show': True, 'show_in_legend': False, 'axis': 'x', 'function': lambda x: x+3})
+    create_multi_series_bar_chart_matplotlib(data3, ax=axes[2], title_props={'text': 'Wykres 3'}, invert_axes=True, legend_props={'legend_labels': ['Seria X', 'Seria Y']}, additional_line={'show': True, 'axis': 'y', 'function': lambda x: 0*x+3})
+    create_multi_series_bar_chart_matplotlib(data4, ax=axes[3], title_props={'text': 'Wykres 4'}, legend_props={'show_legend': False}, bar_props={'alpha': 0.6}, ticks_props={'x_rotation': 45})
     
 
     # Adjust layout
