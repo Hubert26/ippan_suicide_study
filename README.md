@@ -17,8 +17,8 @@ The study uses a dataset gathered by the National Police Headquarters, which has
 		- `logreg_model.py`: Script for building and evaluating a logistic regression model.
 	- `r_project/`: R script for latent class analysis (LCA).
 		- `lca_analysis_poLCA.R`: R script for performing latent class analysis using the poLCA package.
-- `ippan_suicide_study_python_env.yml`: Environment configuration file for Python dependencies.
-- `ippan_suicide_study_r_env.yml`: Environment configuration file for R dependencies.
+- `ippan_suicide_study_env.yml`: Environment configuration file for Python and R dependencies.
+
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/Hubert26/ippan_suicide_study/blob/main/LICENSE.txt) file for details.
