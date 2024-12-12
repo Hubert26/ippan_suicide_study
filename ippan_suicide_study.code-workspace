@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+
+	"python.testing.pytestArgs": [
+	"src"
+	],
+	"python.envFile": "${workspaceFolder}/.env",
+	"python.analysis.extraPaths": [
+		"src"
+	],
+	"terminal.integrated.cwd": "${workspaceFolder}/src"
+}
+

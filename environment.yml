@@ -1,0 +1,17 @@
+name: ippan_suicide_study_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - r-base
+  - r-essentials
+  - r-devtools
+  - r-tidyverse
+  - r-poLCA 
+  - python
+  - pandas
+  - pip
+  - pip:
+      - ../python-data-analysis-utils[matplotlib]
+      - ../python-data-analysis-utils[dataframe]
+      - ../python-data-analysis-utils[ml]
