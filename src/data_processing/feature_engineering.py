@@ -1,8 +1,7 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Sep 11 19:12:51 2024
+Data engineering module for processing and feature extraction from the imputed suicide study dataset.
 
-@author: huber
+This module includes assigning groups based on age, gender and fatal, and performing one-hot encoding on categorical variables.
 """
 
 from pathlib import Path
@@ -10,156 +9,225 @@ import sys
 import pandas as pd
 import numpy as np
 
-from config import *
-from python_data_analysis_utils.utils.dataframe_utils import read_csv_file, write_to_csv
+from config.config import DATA_DIR
 
+# %%
+# Read CSV File
+csv_file_path = DATA_DIR / "imputed" / "imputed_data.csv"
+try:
+    df_imputed = pd.read_csv(csv_file_path, delimiter=",", low_memory=False)
+except FileNotFoundError:
+    print(f"Error: The file {csv_file_path} was not found.")
+    sys.exit(1)
 
+# %%
+# ================================================================================
+# Data Preparation
+# ================================================================================
 
-#%%
-csv_file_path = DATA_DIR / 'imputed' / 'imputed_data.csv'
-df_imputed = read_csv_file(csv_file_path, delimiter=',', low_memory=False)
+# Assign AgeGroup2 from AgeGroup
+age_group_mapping = {
+    "07_12": "00_18",
+    "13_18": "00_18",
+    "19_24": "19_34",
+    "25_29": "19_34",
+    "30_34": "19_34",
+    "35_39": "35_64",
+    "40_44": "35_64",
+    "45_49": "35_64",
+    "50_54": "35_64",
+    "55_59": "35_64",
+    "60_64": "35_64",
+    "65_69": "65",
+    "70_74": "65",
+    "75_79": "65",
+    "80_84": "65",
+    "85": "65",
+}
 
-#%%
-df_imputed['GroupAge'] = df_imputed['GroupAge2']
-columns_to_drop = ['Date', 'DateM', 'GroupAge1', 'GroupAge2', 'CountContext']
-df_imputed.drop(columns_to_drop, inplace=True, axis=1)
+df_imputed["AgeGroup2"] = df_imputed["AgeGroup"].map(age_group_mapping)
 
-#%%
-#Group_AG
-conditions = [
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 0),  
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 1),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 0),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 1),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 0),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 1),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 0),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 1)
+# Create CountContext column
+df_imputed["CountContext"] = df_imputed.filter(like="Context").sum(axis=1)
+
+# Assign New Groups
+
+# Assign groups based on age and gender
+# Group_AG
+age_gender_mapping = [
+    ("00_18", 0),
+    ("00_18", 1),
+    ("19_34", 0),
+    ("19_34", 1),
+    ("35_64", 0),
+    ("35_64", 1),
+    ("65", 0),
+    ("65", 1),
 ]
 
-choices = ["00_18F", "00_18M", "19_34F", "19_34M", "35_64F", "35_64M", "65F", "65M"]
+# Assign group based on AgeGroup and Gender
 
-df_imputed['Group_AG'] = np.select(conditions, choices, default=np.nan)
 
-#%%
-#Group_AF
-conditions = [
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Fatal'] == 0),  
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Fatal'] == 1)
+def assign_group(df, age_column, gender_column, group_column, group_mapping):
+    conditions = [
+        (df[age_column] == age) & (df[gender_column] == gender)
+        for age, gender in group_mapping
+    ]
+    choices = [f"{age}_{gender}" for age, gender in group_mapping]
+    df[group_column] = np.select(conditions, choices, default=np.nan)
+    return df
+
+
+df_imputed = assign_group(
+    df_imputed, "AgeGroup2", "Gender", "Group_AG", age_gender_mapping
+)
+
+
+# Group_AF
+# Define mappings for age and fatality groups
+age_fatal_mapping = [
+    ("00_18", 0),
+    ("00_18", 1),
+    ("19_34", 0),
+    ("19_34", 1),
+    ("35_64", 0),
+    ("35_64", 1),
+    ("65", 0),
+    ("65", 1),
 ]
 
-choices = ["00_18False", "00_18True", "19_34False", "19_34True", "35_64False", "35_64True", "65False", "65True"]
+# Assign group based on AgeGroup and Fatality
 
-df_imputed['Group_AF'] = np.select(conditions, choices, default=np.nan)
 
-#%%
-#Group_AGF
-conditions = [
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "00_18") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "19_34") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "35_64") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 0) & (df_imputed['Fatal'] == 1),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 0),
-    (df_imputed['GroupAge'] == "65") & (df_imputed['Gender'] == 1) & (df_imputed['Fatal'] == 1),
+def assign_group_af(df, age_column, fatal_column, group_column, group_mapping):
+    conditions = [
+        (df[age_column] == age) & (df[fatal_column] == fatal)
+        for age, fatal in group_mapping
+    ]
+    choices = [f"{age}_{fatal}" for age, fatal in group_mapping]
+    df[group_column] = np.select(conditions, choices, default=np.nan)
+    return df
+
+
+df_imputed = assign_group_af(
+    df_imputed, "AgeGroup2", "Fatal", "Group_AF", age_fatal_mapping
+)
+
+
+# Group_AGF
+# Define mappings for age, gender, and fatality groups
+age_gender_fatal_mapping = [
+    ("00_18", 0, 0),
+    ("00_18", 0, 1),
+    ("00_18", 1, 0),
+    ("00_18", 1, 1),
+    ("19_34", 0, 0),
+    ("19_34", 0, 1),
+    ("19_34", 1, 0),
+    ("19_34", 1, 1),
+    ("35_64", 0, 0),
+    ("35_64", 0, 1),
+    ("35_64", 1, 0),
+    ("35_64", 1, 1),
+    ("65", 0, 0),
+    ("65", 0, 1),
+    ("65", 1, 0),
+    ("65", 1, 1),
 ]
 
-choices = ["00_18FFalse", "00_18FTrue", "00_18MFalse", "00_18MTrue",
-           "19_34FFalse", "19_34FTrue", "19_34MFalse", "19_34MTrue",
-           "35_64FFalse", "35_64FTrue", "35_64MFalse", "35_64MTrue",
-           "65FFalse", "65FTrue", "65MFalse", "65MTrue"
-           ]
-
-df_imputed['Group_AGF'] = np.select(conditions, choices, default=np.nan)
-
-#%%
-#Saveing
-file_name = 'final_feature_set.csv'
-output_file_path = DATA_DIR / 'prepped'
-write_to_csv(df_imputed, output_file_path / file_name, index=False)
-#%%
+# Assign group based on AgeGroup, Gender, and Fatality
 
 
+def assign_group_agf(
+    df, age_column, gender_column, fatal_column, group_column, group_mapping
+):
+    conditions = [
+        (df[age_column] == age)
+        & (df[gender_column] == gender)
+        & (df[fatal_column] == fatal)
+        for age, gender, fatal in group_mapping
+    ]
+    choices = [f"{age}{gender}{fatal}" for age, gender, fatal in group_mapping]
+    df[group_column] = np.select(conditions, choices, default=np.nan)
+    return df
 
-#%%
-#================================================================================
+
+df_imputed = assign_group_agf(
+    df_imputed, "AgeGroup2", "Gender", "Fatal", "Group_AGF", age_gender_fatal_mapping
+)
+
+
+# Saving Processed Data
+# Save the final feature set to CSV
+file_name = "final_feature_set.csv"
+output_file_path = DATA_DIR / "prepped"
+try:
+    df_imputed.to_csv(output_file_path / file_name, index=False)
+except Exception as e:
+    print(f"Error: Failed to write to file {output_file_path / file_name}. {str(e)}")
+    sys.exit(1)
+
+# %%
+# ==============================================================================
 # One-Hot Encoding
-#================================================================================
+# ==============================================================================
+
+# One-Hot Encoding
+# Define columns for one-hot encoding
 columns_to_encode = [
-    'Fatal',
-    'AbuseInfo',
-    'Gender',
-    'Income',
-    'Method',
-    'Education',
-    'WorkInfo',
-    'Substance',
-    'Place',
-    'Marital',
-    'Context_Other',
-    'Context_FamilyConflict',
-    'Context_HeartBreak',
-    'Context_Finances',
-    'Context_SchoolWork',
-    'Context_CloseDeath',
-    'Context_Crime',
-    'Context_Disability',
-    'Context_MentalHealth',
-    'Context_HealthLoss'
-    ]
+    "AbuseInfo",
+    "Income",
+    "Method",
+    "Education",
+    "WorkInfo",
+    "Substance",
+    "Place",
+    "Marital",
+]
 
-columns_to_merge = [
-    'ID',
-    'Group_AG',
-    'Group_AF',
-    'Group_AGF',
-    'DateY'
-    ]
+# Include boolean columns in the encoding process
+bool_columns = [
+    "Fatal",
+    "Gender",
+    "Context_Other",
+    "Context_FamilyConflict",
+    "Context_HeartBreak",
+    "Context_Finances",
+    "Context_SchoolWork",
+    "Context_CloseDeath",
+    "Context_Crime",
+    "Context_Disability",
+    "Context_MentalHealth",
+    "Context_HealthLoss",
+]
 
-df_encoded = df_imputed[columns_to_encode]
+# Convert Gender column to categorical type
+df_imputed["Gender"] = df_imputed["Gender"].astype("category")
+
+# Map Gender values to integers using rename_categories
+df_imputed["Gender"] = df_imputed["Gender"].cat.rename_categories({"M": 1, "F": 0})
+
+# Convert boolean columns to booleans
+df_imputed[bool_columns] = df_imputed[bool_columns].astype(bool)
+
+# Combine the columns to encode
+columns_to_encode.extend(bool_columns)
 
 # Apply One-Hot Encoding
-df_encoded = pd.get_dummies(df_encoded, drop_first=False)
-
-bool_columns = [
-    'Fatal',
-    'Gender',
-    'Context_Other',
-    'Context_FamilyConflict',
-    'Context_HeartBreak',
-    'Context_Finances',
-    'Context_SchoolWork',
-    'Context_CloseDeath',
-    'Context_Crime',
-    'Context_Disability',
-    'Context_MentalHealth',
-    'Context_HealthLoss'
-]
-
-# Convert these columns to boolean type
-df_encoded[bool_columns] = df_encoded[bool_columns].astype(bool)
+df_encoded = pd.get_dummies(df_imputed[columns_to_encode], drop_first=False)
 
 # Merge additional columns
+# Define columns to merge after encoding
+columns_to_merge = df_imputed.columns.difference(
+    columns_to_encode + bool_columns
+).tolist()
 df_encoded[columns_to_merge] = df_imputed[columns_to_merge].copy()
 
-
-#%%
-#Saveing
-file_name = 'encoded_data.csv'
-output_file_path = DATA_DIR / 'encoded'
-write_to_csv(df_encoded, output_file_path / file_name, index=False)
+# Save the encoded data
+file_name = "encoded_final_set.csv"
+output_file_path = DATA_DIR / "encoded"
+try:
+    df_encoded.to_csv(output_file_path / file_name, index=False)
+except Exception as e:
+    print(f"Error: Failed to write to file {output_file_path / file_name}. {str(e)}")
+    sys.exit(1)
