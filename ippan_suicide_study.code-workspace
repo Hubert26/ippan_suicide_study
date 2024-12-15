@@ -13,6 +13,10 @@
 	"python.analysis.extraPaths": [
 		"src"
 	],
-	"terminal.integrated.cwd": "${workspaceFolder}/src"
+	"terminal.integrated.cwd": "${workspaceFolder}/src",
+	"launch": {
+		"version": "0.2.0",
+		"configurations": []
+	}
 }
 
