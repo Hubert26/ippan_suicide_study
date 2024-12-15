@@ -4,8 +4,9 @@ channels:
   - bioconda  # Channel for bioconda packages
   - defaults     # Default channel for conda packages
 dependencies:
-  - r-base  # Base R installation
+  - python  # Python programming language
   - r  # R programming language
+  - r-base  # Base R installation
   - r-essentials  # Essential R packages for data analysis
   - r-devtools  # Tools for package development in R
   - r-tidyverse  # Collection of R packages for data science
@@ -13,7 +14,6 @@ dependencies:
   - r-irkernel  # R kernel for Jupyter notebooks
   - ipykernel  # IPython kernel for Jupyter
   - jupyter  # Jupyter notebook support
-  - python  # Python programming language
   - pandas  # Python library for data manipulation and analysis
   - seaborn  # Python library for statistical data visualization
   - matplotlib  # Python library for creating static, animated, and interactive visualizations
