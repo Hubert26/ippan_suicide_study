@@ -10,13 +10,10 @@ import numpy as np
 # Load environment variables from the .env file
 load_dotenv()
 
-# Add the src directory to the Python path
-sys.path.append(str(Path(__file__).resolve().parent))
-
-from config.config import DATA_DIR
+DATA_DIR = os.getenv('DATA_DIR')
 
 # Set output directory
-output_file_path = DATA_DIR / 'mapped'
+output_file_path = Path(DATA_DIR) / 'mapped'
 
 #================================================================================
 # MAPPING DICTIONARIES

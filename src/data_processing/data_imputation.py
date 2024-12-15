@@ -6,12 +6,17 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
+from dotenv import load_dotenv
+import os
 
-from config.config import DATA_DIR
+# Load environment variables from the .env file
+load_dotenv()
+
+DATA_DIR = os.getenv('DATA_DIR')
 
 np.random.seed(42)
 
-output_file_path = DATA_DIR / 'imputed'
+output_file_path = Path(DATA_DIR) / 'imputed'
 
 #================================================================================
 # IMPUTATION FUNCTIONS
@@ -80,7 +85,7 @@ def fill_missing_values_by_probability(dataframe, column_name):
 #================================================================================
 
 # Data import
-csv_file_path = DATA_DIR / 'mapped' / 'mapped_data.csv'
+csv_file_path = Path(DATA_DIR) / 'mapped' / 'mapped_data.csv'
 df_raw = pd.read_csv(csv_file_path)
 
 # Split data and context

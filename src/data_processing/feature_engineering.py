@@ -8,12 +8,17 @@ from pathlib import Path
 import sys
 import pandas as pd
 import numpy as np
+from dotenv import load_dotenv
+import os
 
-from config.config import DATA_DIR
+# Load environment variables from the .env file
+load_dotenv()
+
+DATA_DIR = os.getenv('DATA_DIR')
 
 # %%
 # Read CSV File
-csv_file_path = DATA_DIR / "imputed" / "imputed_data.csv"
+csv_file_path = Path(DATA_DIR) / "imputed" / "imputed_data.csv"
 try:
     df_imputed = pd.read_csv(csv_file_path, delimiter=",", low_memory=False)
 except FileNotFoundError:
