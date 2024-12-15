@@ -3,7 +3,6 @@
 #===============================================================================================
 data/
 results/
-logs/
 
 #===============================================================================================
 #PYTHON
@@ -132,7 +131,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+!.env
 .venv
 env/
 venv/
@@ -214,3 +213,21 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+#===============================================================================================
+# Project specific
+#===============================================================================================
+# Avast temporary files
+_avast_/
+
+# Additional data and results
+*.csv
+*.xlsx
+*.xls
+*.sav
+*.rds
+*.pkl
+
+# Temporary files
+*.tmp
+*.bak
