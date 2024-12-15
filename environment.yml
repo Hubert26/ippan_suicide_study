@@ -1,9 +1,11 @@
 name: ippan_suicide_study_env  # Name of the conda environment
 channels:
   - conda-forge  # Channel for conda packages
+  - bioconda  # Channel for bioconda packages
   - defaults     # Default channel for conda packages
 dependencies:
   - r-base  # Base R installation
+  - r  # R programming language
   - r-essentials  # Essential R packages for data analysis
   - r-devtools  # Tools for package development in R
   - r-tidyverse  # Collection of R packages for data science
@@ -20,4 +22,5 @@ dependencies:
   - scikit-learn  # Python library for machine learning
   - scipy  # Python library for scientific and numerical computations
   - statsmodels  # Python library for statistical modeling
+  - numpy  # Python library for efficient numerical computation
   - pip  # Package installer for Python
