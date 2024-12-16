@@ -25,5 +25,13 @@ This repository has the following structure:
 - `environment.yml`: Configuration for environment setup.
 - `ippan_suicide_study.code-workspace`: Workspace configuration for the IDE.
 
+## Installation
+### 4. Configure R in Jupiter Notebook
++ In terminal run `R`
++ Install IRkernel
+```
+IRkernel::installspec(name = "python_r_env", displayname = "R (python_r_env)")
+```
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](https://github.com/Hubert26/ippan_suicide_study/blob/main/LICENSE.txt) file for details.

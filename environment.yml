@@ -1,26 +1,16 @@
-name: env_ippan_suicide_study  # Name of the conda environment
+name: python_r_env
 channels:
-  - conda-forge  # Channel for conda packages
-  - bioconda  # Channel for bioconda packages
-  - defaults     # Default channel for conda packages
+  - defaults
 dependencies:
-  - python  # Python programming language
-  - r  # R programming language
-  - r-base  # Base R installation
-  - r-essentials  # Essential R packages for data analysis
-  - r-devtools  # Tools for package development in R
-  - r-tidyverse  # Collection of R packages for data science
-  - r-poLCA  # R package for performing latent class analysis
-  - r-irkernel  # R kernel for Jupyter notebooks
-  - ipykernel  # IPython kernel for Jupyter
-  - jupyter  # Jupyter notebook support
-  - pandas  # Python library for data manipulation and analysis
-  - seaborn  # Python library for statistical data visualization
-  - matplotlib  # Python library for creating static, animated, and interactive visualizations
-  - openpyxl  # Python library for reading/writing Excel 2010 xlsx/xlsm/xltx/xltm files
-  - python-docx  # Python library for creating and updating Microsoft Word (.docx) files
-  - scikit-learn  # Python library for machine learning
-  - scipy  # Python library for scientific and numerical computations
-  - statsmodels  # Python library for statistical modeling
-  - numpy  # Python library for efficient numerical computation
-  - pip  # Package installer for Python
+  - python=3.11
+  - r-base=3.6.1
+  - r-essentials
+  - python-dotenv
+  - pandas
+  - openpyxl
+  - jupyter
+  - python-docx
+  - r-dotenv
+  - scikit-learn
+  - statsmodels
+
