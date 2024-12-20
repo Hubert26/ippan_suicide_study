@@ -6,8 +6,8 @@
 # Load necessary libraries
 library(dplyr)
 library(here)
-library(poLCA)  # Ensure poLCA is installed
-library(dotenv)  # Load environment variables from .env file
+library(poLCA)
+library(dotenv)
 
 # Load environment variables
 load_dot_env()
