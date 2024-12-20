@@ -103,7 +103,7 @@ selected_data$ID <- encoded_data$ID
 data <- selected_data
 
 # Choose Group column
-group_column <- "Group_AGF"  # Replace with the desired group column name, e.g., "Group_AF" 
+group_column <- "Group_AF"  # Replace with the desired group column name, e.g., "Group_AF" 
 
 if (group_column %in% names(encoded_data)) {
   data[[group_column]] <- encoded_data[[group_column]]
@@ -121,10 +121,25 @@ if (group_column == "Group_AF") {
 
 # Function to perform LCA
 perform_lca <- function(data, group_column, n_classes = 5) {
+  # Check if 'data' is a data frame
+  if (!is.data.frame(data)) {
+      stop("The 'data' object is not a data frame.")
+  }
+  
+  # Check if 'group_column' is a single string
+  if (!is.character(group_column) || length(group_column) != 1) {
+      stop("The 'group_column' must be a single string.")
+  }
+
+  # Check if the column exists
+  if (!group_column %in% names(data)) {
+    stop("Column not found in data")
+  }
+
   group_values <- unique(data[[group_column]])
   lca_classes <- data.frame(ID = data$ID)
   lca_classes[[paste("Predicted_Class", group_column, sep = "_")]] <- NA
-  
+
   for (group_value in group_values) {
     filtered_rows <- data %>% filter(.data[[group_column]] == group_value)
     id_column <- filtered_rows$ID

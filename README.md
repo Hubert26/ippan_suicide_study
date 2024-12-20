@@ -12,7 +12,7 @@ This repository has the following structure:
 - `.vscode/`: Configuration files for Visual Studio Code.
 - `data/`: Contains datasets used in the analysis.
 - `docs/`: Documentation related to the project.
-- `notebooks/`: Jupyter notebooks for drafts,exploratory analysis and visualization.
+- `notebooks/`: Jupyter notebooks for drafts and exploratory analysis
 - `results/`: Output results from analyses.
 - `src/`: Source code for data preparation, analysis, and modeling.
     - `data_processing/`: Scripts for processing data.
@@ -26,7 +26,25 @@ This repository has the following structure:
 - `ippan_suicide_study.code-workspace`: Workspace configuration for the IDE.
 
 ## Installation
-### 4. Configure R in Jupiter Notebook
+### 1. Clone the repository:
+   ```bash
+   git clone https://github.com/Hubert26/ippan_suicide_study.git
+
+### 2. Create and Activate the Environment
++ Navigate to the ippan_suicide_study project directory:
+```
+cd /path/to/ippan_suicide_study
+```
++ Create the Conda environment from the `environment.yml` file:
+```
+conda env create -f environment.yml
+```
++ Activate the environment:
+```
+conda activate pytho_r_env
+```
+
+### 3. Configure R in Jupiter Notebook
 + In terminal run `R`
 + Install IRkernel
 ```

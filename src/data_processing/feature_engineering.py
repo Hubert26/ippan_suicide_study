@@ -7,18 +7,18 @@ This module includes assigning groups based on age, gender and fatal, and perfor
 from pathlib import Path
 import sys
 import pandas as pd
-import numpy as np
 from dotenv import load_dotenv
 import os
 
 # Load environment variables from the .env file
 load_dotenv()
 
-DATA_DIR = os.getenv('DATA_DIR')
+# Convert DATA_DIR to a Path object
+DATA_DIR = Path(os.getenv("DATA_DIR"))
 
 # %%
 # Read CSV File
-csv_file_path = Path(DATA_DIR) / "imputed" / "imputed_data.csv"
+csv_file_path = DATA_DIR / "imputed" / "imputed_data.csv"
 try:
     df_imputed = pd.read_csv(csv_file_path, delimiter=",", low_memory=False)
 except FileNotFoundError:
@@ -31,7 +31,7 @@ except FileNotFoundError:
 # ================================================================================
 
 # Assign AgeGroup2 from AgeGroup
-age_group_mapping = {
+group_mapping = {
     "07_12": "00_18",
     "13_18": "00_18",
     "19_24": "19_34",
@@ -50,47 +50,65 @@ age_group_mapping = {
     "85": "65",
 }
 
-df_imputed["AgeGroup2"] = df_imputed["AgeGroup"].map(age_group_mapping)
+df_imputed["AgeGroup2"] = df_imputed["AgeGroup"].map(group_mapping)
 
 # Create CountContext column
 df_imputed["CountContext"] = df_imputed.filter(like="Context").sum(axis=1)
 
-# Assign New Groups
 
-# Assign groups based on age and gender
-# Group_AG
-age_gender_mapping = [
-    ("00_18", 0),
-    ("00_18", 1),
-    ("19_34", 0),
-    ("19_34", 1),
-    ("35_64", 0),
-    ("35_64", 1),
-    ("65", 0),
-    ("65", 1),
-]
+# Assign New Groups
+# Function to assign groups
+def assign_group(df, group_column, mapping_columns, group_mapping):
+    """
+    Assign groups based on specified columns and mapping.
+
+    Parameters:
+    - df: DataFrame containing the data
+    - group_column: Name of the column to store the group assignment
+    - mapping_columns: List of column names to use for mapping
+    - group_mapping: List of tuples with mapping criteria
+
+    Returns:
+    - DataFrame with the new group assignments
+    """
+    # Initialize the group column with NaN and set the correct dtype
+    df[group_column] = pd.Series(dtype="object")  # Ensure the column is of object type
+
+    # Iterate over each row in the DataFrame
+    for index, row in df.iterrows():
+        for values in group_mapping:
+            # Check if the current row matches the group mapping
+            if len(values) == len(mapping_columns) and all(
+                row[mapping_columns[i]] == values[i]
+                for i in range(len(mapping_columns))
+            ):
+                # Assign the group if there's a match
+                df.at[index, group_column] = f"{'_'.join(map(str, values))}"
+                break  # Exit the loop once a match is found
+
+    return df
+
 
 # Assign group based on AgeGroup and Gender
+# Group_AG
+mapping_columns = ["AgeGroup2", "Gender"]
+group_mapping = [
+    ("00_18", "F"),
+    ("00_18", "M"),
+    ("19_34", "F"),
+    ("19_34", "M"),
+    ("35_64", "F"),
+    ("35_64", "M"),
+    ("65", "F"),
+    ("65", "M"),
+]
 
+df_imputed = assign_group(df_imputed, "Group_AG", mapping_columns, group_mapping)
 
-def assign_group(df, age_column, gender_column, group_column, group_mapping):
-    conditions = [
-        (df[age_column] == age) & (df[gender_column] == gender)
-        for age, gender in group_mapping
-    ]
-    choices = [f"{age}_{gender}" for age, gender in group_mapping]
-    df[group_column] = np.select(conditions, choices, default=np.nan)
-    return df
-
-
-df_imputed = assign_group(
-    df_imputed, "AgeGroup2", "Gender", "Group_AG", age_gender_mapping
-)
-
-
+# Assign group based on AgeGroup and Fatality
 # Group_AF
-# Define mappings for age and fatality groups
-age_fatal_mapping = [
+mapping_columns = ["AgeGroup2", "Fatal"]
+group_mapping = [
     ("00_18", 0),
     ("00_18", 1),
     ("19_34", 0),
@@ -101,65 +119,32 @@ age_fatal_mapping = [
     ("65", 1),
 ]
 
-# Assign group based on AgeGroup and Fatality
-
-
-def assign_group_af(df, age_column, fatal_column, group_column, group_mapping):
-    conditions = [
-        (df[age_column] == age) & (df[fatal_column] == fatal)
-        for age, fatal in group_mapping
-    ]
-    choices = [f"{age}_{fatal}" for age, fatal in group_mapping]
-    df[group_column] = np.select(conditions, choices, default=np.nan)
-    return df
-
-
-df_imputed = assign_group_af(
-    df_imputed, "AgeGroup2", "Fatal", "Group_AF", age_fatal_mapping
-)
+df_imputed = assign_group(df_imputed, "Group_AF", mapping_columns, group_mapping)
 
 
 # Group_AGF
 # Define mappings for age, gender, and fatality groups
-age_gender_fatal_mapping = [
-    ("00_18", 0, 0),
-    ("00_18", 0, 1),
-    ("00_18", 1, 0),
-    ("00_18", 1, 1),
-    ("19_34", 0, 0),
-    ("19_34", 0, 1),
-    ("19_34", 1, 0),
-    ("19_34", 1, 1),
-    ("35_64", 0, 0),
-    ("35_64", 0, 1),
-    ("35_64", 1, 0),
-    ("35_64", 1, 1),
-    ("65", 0, 0),
-    ("65", 0, 1),
-    ("65", 1, 0),
-    ("65", 1, 1),
+mapping_columns = ["AgeGroup2", "Gender", "Fatal"]
+group_mapping = [
+    ("00_18", "F", 0),
+    ("00_18", "F", 1),
+    ("00_18", "M", 0),
+    ("00_18", "M", 1),
+    ("19_34", "F", 0),
+    ("19_34", "F", 1),
+    ("19_34", "M", 0),
+    ("19_34", "M", 1),
+    ("35_64", "F", 0),
+    ("35_64", "F", 1),
+    ("35_64", "M", 0),
+    ("35_64", "M", 1),
+    ("65", "F", 0),
+    ("65", "F", 1),
+    ("65", "M", 0),
+    ("65", "M", 1),
 ]
 
-# Assign group based on AgeGroup, Gender, and Fatality
-
-
-def assign_group_agf(
-    df, age_column, gender_column, fatal_column, group_column, group_mapping
-):
-    conditions = [
-        (df[age_column] == age)
-        & (df[gender_column] == gender)
-        & (df[fatal_column] == fatal)
-        for age, gender, fatal in group_mapping
-    ]
-    choices = [f"{age}{gender}{fatal}" for age, gender, fatal in group_mapping]
-    df[group_column] = np.select(conditions, choices, default=np.nan)
-    return df
-
-
-df_imputed = assign_group_agf(
-    df_imputed, "AgeGroup2", "Gender", "Fatal", "Group_AGF", age_gender_fatal_mapping
-)
+df_imputed = assign_group(df_imputed, "Group_AGF", mapping_columns, group_mapping)
 
 
 # Saving Processed Data
