@@ -24,7 +24,7 @@ from sklearn.inspection import permutation_importance
 # %%
 def run_stratified_kfold(
     model, X: pd.DataFrame, Y: pd.Series, n_splits: int = 5, random_state: int = 42
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Perform Stratified K-Fold Cross-Validation for any model and return validation metrics.
 
@@ -43,13 +43,16 @@ def run_stratified_kfold(
 
     Returns:
     --------
-    pd.DataFrame
-        A DataFrame containing validation metrics for each fold.
+    tuple[pd.DataFrame, pd.DataFrame]
+        - A DataFrame containing mean validation metrics across all folds.
+        - A DataFrame containing metrics for each fold with additional fold-specific information.
     """
 
     # Initialize Stratified K-Fold
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
-    validation_results = pd.DataFrame()  # DataFrame to accumulate validation results
+
+    # List to store fold metrics
+    skf_validation_results = []
 
     # Iterate through each fold
     for fold, (train_indices, test_indices) in enumerate(skf.split(X, Y), 1):
@@ -61,19 +64,28 @@ def run_stratified_kfold(
         model.fit(X_train, y_train)
 
         # Validate the model on the test set
-        fold_results = validate_model(model, X_test, y_test)
+        validation_results = validate_model(model, X_test, y_test)
 
-        # Add additional information for each fold
-        fold_results["fold"] = fold
-        fold_results["train_size"] = len(y_train)
-        fold_results["test_size"] = len(y_test)
+        # Add fold-specific information
+        validation_results["fold"] = fold
+        validation_results["train_size"] = len(y_train)
+        validation_results["test_size"] = len(y_test)
 
-        # Append the results for the current fold to the cumulative DataFrame
-        validation_results = pd.concat(
-            [validation_results, fold_results], ignore_index=True
-        )
+        # Append results for this fold
+        skf_validation_results.append(validation_results)
 
-    return validation_results
+    # Combine all fold validation results into a single DataFrame
+    skf_validation_results_df = pd.concat(skf_validation_results, ignore_index=True)
+
+    # Calculate mean metrics across all folds
+    mean_metrics = (
+        skf_validation_results_df.drop(columns=["fold", "train_size", "test_size"])
+        .mean()
+        .to_frame()
+        .T
+    )
+
+    return mean_metrics, skf_validation_results_df
 
 
 def validate_model(model, X_test: pd.DataFrame, y_test: pd.Series) -> pd.DataFrame:

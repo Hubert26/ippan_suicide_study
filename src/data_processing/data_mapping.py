@@ -2,26 +2,37 @@
 Handles data from both 2023 and 2013-2022 periods."""
 
 import sys
-import os
 from pathlib import Path
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 import pandas as pd
-import numpy as np
+from typing import List, Dict, Optional
 
 # Load environment variables from the .env file
-load_dotenv()
+env_vars = dotenv_values()  # Load variables from the .env file
 
-DATA_DIR = os.getenv("DATA_DIR")
+# Get the workspace path from the environment variables
+WORKSPACE_PATH = Path(env_vars.get("WORKSPACE_PATH"))  # Fetch WORKSPACE_PATH from .env
 
-# Set output directory
-output_file_path = Path(DATA_DIR) / "mapped"
-print(f"Output Directory: {output_file_path}")
+if not WORKSPACE_PATH:
+    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
+
+# Add the WORKSPACE_PATH folder to the Python path
+sys.path.append(str(WORKSPACE_PATH))
+
+# Import custom utility functions
+from src.config.utils import read_csv, write_csv, read_excel, split_string
+
+DATA_DIR = Path(env_vars["DATA_DIR"])
+MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
+SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
 
 # ================================================================================
 # MAPPING DICTIONARIES
 # ================================================================================
+PREXES_TO_RETAIN = (
+    MOMENT_OF_SUICIDE_FEATURES + SOCIO_DEMOGRAPHIC_FEATURES + ["ID", "Date", "AgeGroup"]
+)
 
-# Column name mappings
 COLUMN_MAPPINGS_2013_2022 = {
     "ID samobójcy": "ID",
     "Data raportu [RRRRMM]": "Date",
@@ -43,10 +54,9 @@ COLUMN_MAPPINGS_2013_2022 = {
     "Informacje o używaniu substancji": "AbuseInfo1",
 }
 
-# Value mappings for each column
 VALUE_MAPPINGS_2013_2022 = {
     "AgeGroup": {
-        0: np.nan,
+        0: pd.NA,
         1: "07_12",
         2: "13_18",
         3: "19_24",
@@ -64,9 +74,9 @@ VALUE_MAPPINGS_2013_2022 = {
         15: "80_84",
         16: "85",
     },
-    "Gender": {0: np.nan, 1: "F", 2: "M"},
+    "Gender": {0: pd.NA, 1: "F", 2: "M"},
     "Marital": {
-        0: np.nan,
+        0: pd.NA,
         1: "Single",
         2: "Cohabitant",
         3: "Married",
@@ -75,7 +85,7 @@ VALUE_MAPPINGS_2013_2022 = {
         6: "Widowed",
     },
     "Education": {
-        0: np.nan,
+        0: pd.NA,
         1: "PrePrimary",
         2: "Primary",
         3: "Secondary",
@@ -85,7 +95,7 @@ VALUE_MAPPINGS_2013_2022 = {
         7: "Higher",
     },
     "WorkInfo": {
-        0: np.nan,
+        0: pd.NA,
         1: "Student",
         2: "Student",
         3: "Employed",
@@ -96,10 +106,10 @@ VALUE_MAPPINGS_2013_2022 = {
         8: "Employed",
         9: "Unemployed",
     },
-    "Income": {0: np.nan, 1: "Dependent", 2: "Steady", 3: "Benefits", 4: "NoSteady"},
-    "Fatal": {0: np.nan, 1.0: 1, 2.0: 0},
+    "Income": {0: pd.NA, 1: "Dependent", 2: "Steady", 3: "Benefits", 4: "NoSteady"},
+    "Fatal": {0: pd.NA, 1.0: 1, 2.0: 0},
     "Place": {
-        0: np.nan,
+        0: pd.NA,
         1: "Road",
         2: "UtilitySpaces",
         3: "House",
@@ -117,7 +127,7 @@ VALUE_MAPPINGS_2013_2022 = {
         15: "Other",
     },
     "Method": {
-        0: np.nan,
+        0: pd.NA,
         1: "Vehicle",
         2: "Jumping",
         3: "Hanging",
@@ -138,7 +148,7 @@ VALUE_MAPPINGS_2013_2022 = {
         18: "Other",
     },
     "Substance": {
-        0: np.nan,
+        0: pd.NA,
         1: "Sober",
         2: "Alco",
         3: "OtherSub",
@@ -159,7 +169,7 @@ VALUE_MAPPINGS_2013_2022 = {
         18: "AlcoOtherSub",
     },
     "Context": {
-        0: np.nan,
+        0: pd.NA,
         1: "HeartBreak",
         2: "MentalHealth",
         3: "FamilyConflict",
@@ -180,7 +190,7 @@ VALUE_MAPPINGS_2013_2022 = {
         18: "Other",
     },
     "AbuseInfo1": {
-        0: np.nan,
+        0: pd.NA,
         1: "Alco",
         2: "OtherSub",
         3: "OtherSub",
@@ -189,10 +199,9 @@ VALUE_MAPPINGS_2013_2022 = {
         6: "AlcoOtherSub",
         7: "AlcoOtherSub",
     },
-    "AbuseInfo2": {0: np.nan, 1: "Alco", 2: "OtherSub", 3: "AlcoOtherSub"},
+    "AbuseInfo2": {0: pd.NA, 1: "Alco", 2: "OtherSub", 3: "AlcoOtherSub"},
 }
 
-# Column name mappings
 COLUMN_MAPPINGS_2023 = {
     "ID samobójcy": "ID",
     "Data rejestracji": "Date",
@@ -214,7 +223,6 @@ COLUMN_MAPPINGS_2023 = {
     "Informacje dotyczące stanu zdrowia *": "AbuseInfo2",
 }
 
-# Value mappings for each column
 VALUE_MAPPINGS_2023 = {
     "AgeGroup": {
         "7-12": "07_12",
@@ -233,7 +241,7 @@ VALUE_MAPPINGS_2023 = {
         "75-79": "75_79",
         "80-84": "80_84",
         "85+": "85",
-        "Nieustalony wiek": np.nan,
+        "Nieustalony wiek": pd.NA,
     },
     "Gender": {
         "M": "M",
@@ -248,7 +256,7 @@ VALUE_MAPPINGS_2023 = {
         "Rozwiedziony/rozwiedziona": "Divorced",
         "W separacji": "Separated",
         "Konkubent/konkubina": "Cohabiting",
-        "Brak danych/nieustalony": np.nan,
+        "Brak danych/nieustalony": pd.NA,
     },
     "Education": {
         "Podstawowe": "Primary",
@@ -256,11 +264,11 @@ VALUE_MAPPINGS_2023 = {
         "Zasadnicze zawodowe": "Vocational",
         "Średnie": "Secondary",
         "Wyższe": "Higher",
-        "Brak danych/nieustalony": np.nan,
-        "Nie dotyczy": np.nan,
+        "Brak danych/nieustalony": pd.NA,
+        "Nie dotyczy": pd.NA,
     },
     "WorkInfo": {
-        "Brak danych/nieustalono": np.nan,
+        "Brak danych/nieustalono": pd.NA,
         "Uczeń": "Student",
         "Student": "Student",
         "Rolnik": "Agriculturalist",
@@ -270,7 +278,7 @@ VALUE_MAPPINGS_2023 = {
         "Bezrobotny": "Unemployed",
     },
     "Income": {
-        "Brak danych/nieustalony": np.nan,
+        "Brak danych/nieustalony": pd.NA,
         "Na utrzymaniu innej osoby": "Dependent",
         "Praca": "Steady",
         "Emerytura": "Benefits",
@@ -315,7 +323,7 @@ VALUE_MAPPINGS_2023 = {
         "Inny": "Other",
     },
     "Substance": {
-        "Brak danych/nieustalony": np.nan,
+        "Brak danych/nieustalony": pd.NA,
         "Trzeźwy(a)": "Sober",
         "Pod wpływem alkoholu": "Alco",
         "Pod wpływem zastępczych środków/substancji (dopalaczy)": "OtherSub",
@@ -329,7 +337,7 @@ VALUE_MAPPINGS_2023 = {
         "Pod wpływem alkoholu, leków i środków odurzających": "AlcoOtherSub",
     },
     "Context": {
-        "Nieustalony": np.nan,
+        "Nieustalony": pd.NA,
         "Zawód miłosny": "HeartBreak",
         "Leczony(a) psychiatrycznie": "MentalHealth",
         "Nieporozumienie rodzinne/przemoc w rodzinie": "FamilyConflict",
@@ -350,19 +358,19 @@ VALUE_MAPPINGS_2023 = {
         "Inny niewymieniony powyżej": "Other",
     },
     "AbuseInfo1": {
-        "Leczony(a) psychiatrycznie": np.nan,
+        "Leczony(a) psychiatrycznie": pd.NA,
         "Nadużywał(a) alkoholu": "Alco",
         "Leczony(a) z powodu alkoholizmu": "Alco",
         "Leczony(a) z powodu narkomanii": "OtherSub",
         "Leczony(a) z powodu alkoholizmu i narkomanii": "AlcoOtherSub",
     },
     "AbuseInfo2": {
-        "Brak danych/nieustalono": np.nan,
+        "Brak danych/nieustalono": pd.NA,
         "Nadużywał(a) alkoholu": "Alco",
-        "Leczony(a) psychiatrycznie": np.nan,
+        "Leczony(a) psychiatrycznie": pd.NA,
         "Leczony(a) z powodu alkoholizmu": "Alco",
-        "Choroba fizyczna": np.nan,
-        "Trwałe kalectwo": np.nan,
+        "Choroba fizyczna": pd.NA,
+        "Trwałe kalectwo": pd.NA,
         "Zatrzymany(a) w izbie wytrzeźwień": "Alco",
         "Nadużywał(a) alkoholu i narkotyków": "AlcoOtherSub",
         "Nadużywał(a) alkoholu i nakrotyków": "AlcoOtherSub",
@@ -378,197 +386,242 @@ VALUE_MAPPINGS_2023 = {
     },
 }
 
+
 # ================================================================================
-# MAPPING FUNCTIONS
+# HELPER FUNCTIONS
 # ================================================================================
 
 
-def map_column(df: pd.DataFrame, old_col: str, new_col: str) -> pd.DataFrame:
-    """Rename a column in the DataFrame.
-
-    Args:
-        df: Input DataFrame
-        old_col: Original column name
-        new_col: New column name
-
-    Returns:
-        DataFrame with renamed column
-    """
-    if old_col in df.columns:
-        df.rename(columns={old_col: new_col}, inplace=True)
-    return df
-
-
-def map_columns(df: pd.DataFrame, column_mappings: dict) -> pd.DataFrame:
-    """Rename multiple columns in the DataFrame based on a mapping dictionary.
-
-    Args:
-        df: Input DataFrame
-        column_mappings: Dictionary mapping old column names to new ones
-
-    Returns:
-        DataFrame with renamed columns
-    """
-    for old_col, new_col in column_mappings.items():
-        df = map_column(df, old_col, new_col)
-    return df
-
-
-def load_data(file_path: str, is_excel: bool = True):
-    # Load dataset from the specified file path.
-    if is_excel:
-        df = pd.read_excel(file_path)
-    else:
-        df = pd.read_csv(file_path, low_memory=False)
+def map_columns(df: pd.DataFrame, column_mappings: Dict[str, str]) -> pd.DataFrame:
+    """Rename columns in the DataFrame based on a mapping dictionary."""
+    df.rename(columns=column_mappings, inplace=True)
     return df
 
 
 def map_features(
-    df: pd.DataFrame, column_mappings: dict, value_mappings: dict
+    df: pd.DataFrame, column_mappings: Dict[str, str], value_mappings: Dict[str, Dict]
 ) -> pd.DataFrame:
-    """Map multiple features using provided column and value mappings."""
+    """Apply value mappings to DataFrame columns."""
     for old_col, new_col in column_mappings.items():
-        if new_col in value_mappings:
-            # Check if value_mappings[new_col] is a dictionary
-            if isinstance(value_mappings[new_col], dict):
-                if new_col in df.columns:  # Ensure new_col exists in the DataFrame
-                    df[new_col] = df[new_col].map(value_mappings[new_col])
+        if new_col in value_mappings and new_col in df.columns:
+            # Convert column to object to handle mixed types
+            df[new_col] = df[new_col].astype(object)
 
-    # Replace values in Context columns
-    context_columns = ["Context1", "Context2", "Context3", "Context4"]
-    if "Context" in value_mappings:
-        for context_col in context_columns:
-            if context_col in df.columns:
-                df[context_col] = df[context_col].map(value_mappings["Context"])
+            # Apply mapping
+            mapped = df[new_col].map(value_mappings[new_col])
+
+            # Replace invalid values with pd.NA to ensure compatibility
+            mapped = mapped.where(mapped.notna(), pd.NA)
+
+            # Convert to object type
+            df.loc[:, new_col] = mapped.astype(object)
     return df
 
 
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    # Clean ID column
-    if "ID" in df.columns:
-        df = df.loc[
-            ~df["ID"].isna() & (df["ID"].str.strip() != "")
-        ].copy()  # Create a copy to avoid warnings
+def merge_columns(
+    df: pd.DataFrame, columns: List[str], output_column: str
+) -> pd.DataFrame:
+    """
+    Merge multiple columns into a single column, prioritizing non-null values.
 
-    # Process dates if present
-    if "Date" in df.columns:
-        # First, try to convert 'YYYYMM' format to datetime
-        df["Date"] = pd.to_datetime(
-            df["Date"], format="%Y%m", errors="coerce"
-        )  # Coerce invalid formats to NaT
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        columns (List[str]): List of column names to merge.
+        output_column (str): Name of the resulting merged column.
 
-        # Then, convert any remaining valid date strings to datetime
-        df["Date"] = pd.to_datetime(
-            df["Date"], errors="coerce"
-        )  # Convert valid date strings to datetime
+    Returns:
+        pd.DataFrame: Updated DataFrame with the merged column.
+    """
+    if not columns:
+        return df
 
-        # Create year and month columns if Date is valid
-        if df["Date"].notna().any():
-            df.loc[:, "DateY"] = df["Date"].dt.strftime("%Y")
-            df.loc[:, "DateM"] = df["Date"].dt.strftime("%m")
-            # Combine and convert to datetime
-            df.loc[:, "Date"] = pd.to_datetime(
-                df["DateM"] + "." + df["DateY"], format="%m.%Y", errors="coerce"
-            )
+    df = df.copy()
 
-    # Find context columns dynamically
-    context_columns = [col for col in df.columns if col.startswith(("Context"))]
+    # Merge columns and drop originals
+    merged_column = df[columns].bfill(axis=1).iloc[:, 0]
+    df.loc[:, output_column] = merged_column
+    df.drop(columns=columns, inplace=True, errors="ignore")
+    return df
 
-    # Extract unique context values
-    context_values = set()
-    for col in context_columns:
-        if col in df.columns:
-            context_values.update(df[col].dropna().unique())
 
-    # Create new binary columns for each unique context value
-    for value in context_values:
-        column_name = f"Context_{value}"
-        df.loc[:, column_name] = df[context_columns].apply(
-            lambda row: 1 if value in row.values else 0, axis=1
+def encode_columns_by_prefix(
+    df: pd.DataFrame,
+    column_prefix: str,
+    output_prefix: str,
+    value_mapping: Optional[Dict] = None,
+) -> pd.DataFrame:
+    """
+    Encode unique values from columns with a specific prefix into binary columns.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        column_prefix (str): Prefix of the columns to encode.
+        output_prefix (str): Prefix for the resulting binary columns.
+        value_mapping (Optional[Dict]): Optional mapping for values before encoding.
+
+    Returns:
+        pd.DataFrame: Updated DataFrame with binary-encoded columns.
+    """
+    target_columns = [col for col in df.columns if col.startswith(column_prefix)]
+    if not target_columns:
+        return df  # No columns with the specified prefix
+
+    # Make a copy of the DataFrame to avoid modifying the original
+    df = df.copy()
+
+    # Apply value mapping if provided
+    if value_mapping:
+        for col in target_columns:
+            if col in df.columns:
+                mapped_column = df[col].map(value_mapping)
+                # Replace NaN with pd.NA for compatibility with object type
+                mapped_column = mapped_column.astype(object).where(
+                    mapped_column.notna(), pd.NA
+                )
+                df.loc[:, col] = mapped_column.astype(object)
+
+    # Get unique non-null values across all target columns
+    unique_values = pd.concat(
+        [df[col].dropna() for col in target_columns], axis=0
+    ).unique()
+
+    for value in unique_values:
+        binary_column = f"{output_prefix}_{value}"
+        # Use .loc to modify the DataFrame, handling NA values explicitly
+        df.loc[:, binary_column] = df[target_columns].apply(
+            lambda row: int(value in row.dropna().values), axis=1
         )
 
-    # Drop original context columns
-    df.drop(columns=context_columns, inplace=True, errors="ignore")
+    # Drop the original columns
+    df.drop(columns=target_columns, inplace=True, errors="ignore")
+    return df
 
-    # Merge AbuseInfo columns
-    abuse_info_columns = [col for col in df.columns if col.startswith("AbuseInfo")]
-    if abuse_info_columns:
-        if len(abuse_info_columns) == 1:
-            df.loc[:, "AbuseInfo"] = df[
-                abuse_info_columns[0]
-            ]  # Directly assign the single column
+
+def clean_data(
+    df: pd.DataFrame,
+    value_mappings: Dict[str, Dict],
+    prefixes_to_retain: Optional[Dict[str, str]] = None,
+) -> pd.DataFrame:
+    """
+    Clean and preprocess data, including filtering columns based on mappings.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        value_mappings (Dict[str, Dict]): Mapping dictionary for values.
+        column_mappings (Optional[Dict[str, str]]): Mapping dictionary for column names.
+
+    Returns:
+        pd.DataFrame: Cleaned and filtered DataFrame.
+    """
+    df = df.copy()
+
+    # Drop rows with empty or NaN IDs
+    if "ID" in df.columns:
+        df = df.loc[~df["ID"].isna() & (df["ID"].str.strip() != "")]
+
+    # Convert Date to datetime and extract Year/Month
+    if "Date" in df.columns:
+        # First, try to convert 'YYYYMM' format to datetime
+        date_column_YYYYMM = pd.to_datetime(df["Date"], format="%Y%m", errors="coerce")
+        # Then, convert any remaining valid date strings to datetime
+        date_column_rest = pd.to_datetime(df["Date"], errors="coerce")
+        df.loc[:, "Date"] = date_column_YYYYMM.fillna(date_column_rest)
+        df["Date"] = df["Date"].astype("datetime64[ns]")
+
+        if df["Date"].isna().all():
+            raise ValueError(
+                "All values in 'Date' column are invalid and could not be parsed."
+            )
+
+        # Create year and month columns if Date is valid
+        # Ensure the Date column is in datetime format
+        if pd.api.types.is_datetime64_any_dtype(df["Date"]):
+            # Create year and month columns
+            df["DateY"] = df["Date"].dt.year.astype("Int64").astype(str).str.zfill(4)
+            df["DateM"] = df["Date"].dt.month.astype("Int64").astype(str).str.zfill(2)
         else:
-            df.loc[:, "AbuseInfo"] = (
-                df[abuse_info_columns].bfill(axis=1).iloc[:, 0]
-            )  # Use backfill to fill NaNs
-        df.drop(columns=abuse_info_columns, inplace=True, errors="ignore")
+            raise ValueError("Column 'Date' could not be converted to datetime format.")
+
+    # Encode Context columns into binary features
+    df = encode_columns_by_prefix(
+        df,
+        column_prefix="Context",
+        output_prefix="Context",
+        value_mapping=value_mappings.get("Context"),
+    )
+
+    # Merge AbuseInfo columns into a single column
+    df = merge_columns(
+        df,
+        columns=[col for col in df.columns if col.startswith("AbuseInfo")],
+        output_column="AbuseInfo",
+    )
+
+    # Filter columns to retain only those with prefixes in prefixes_to_retain
+    if prefixes_to_retain:
+        columns_to_retain = {
+            col: col
+            for col in df.columns
+            if any(col.startswith(prefix) for prefix in prefixes_to_retain)
+        }
+        mapped_columns = set(columns_to_retain.values())
+        current_columns = set(df.columns)
+        columns_to_retain = current_columns & mapped_columns  # Keep only mapped columns
+        unmapped_columns = current_columns - columns_to_retain  # Find unmapped columns
+
+        # Drop unmapped columns
+        df.drop(columns=list(unmapped_columns), inplace=True, errors="ignore")
 
     return df
+
+
+def run_data_mapping(
+    df_raw_2023: pd.DataFrame,
+    df_raw_2013_2022: pd.DataFrame,
+    column_mappings_2023: Dict[str, str],
+    value_mappings_2023: Dict[str, Dict],
+    column_mappings_2013_2022: Dict[str, str],
+    value_mappings_2013_2022: Dict[str, Dict],
+) -> pd.DataFrame:
+    """Run data mapping for 2023 and 2013-2022 datasets and combine them."""
+    df_2023 = map_columns(df_raw_2023, column_mappings_2023)
+    df_2023 = map_features(df_2023, column_mappings_2023, value_mappings_2023)
+    df_2023 = clean_data(df_2023, value_mappings_2023, PREXES_TO_RETAIN)
+
+    df_2013_2022 = map_columns(df_raw_2013_2022, column_mappings_2013_2022)
+    df_2013_2022 = map_features(
+        df_2013_2022, column_mappings_2013_2022, value_mappings_2013_2022
+    )
+    df_2013_2022 = clean_data(df_2013_2022, value_mappings_2013_2022, PREXES_TO_RETAIN)
+
+    df_combined = pd.concat([df_2023, df_2013_2022], ignore_index=True)
+    df_combined.reset_index(drop=True, inplace=True)
+    return df_combined
 
 
 # ================================================================================
 # PROCESS DATASETS
 # ================================================================================
-
-
-def main():
-    # Process 2023 Dataset
+if __name__ == "__main__":
     excel_file_path = Path(DATA_DIR) / "raw" / "Samobojstwa_2023.xlsx"
-    df_raw_2023 = load_data(excel_file_path, is_excel=True)
-    df_raw_2023 = map_columns(df_raw_2023, COLUMN_MAPPINGS_2023)
-    df_raw_2023 = map_features(df_raw_2023, COLUMN_MAPPINGS_2023, VALUE_MAPPINGS_2023)
-    df_raw_2023 = clean_data(df_raw_2023)
+    df_raw_2023 = read_excel(excel_file_path)
 
-    # Process 2013-2022 Dataset
     csv_file_path = Path(DATA_DIR) / "raw" / "final_samobojstwa_2013_2022.csv"
-    df_raw_2013_2022 = load_data(csv_file_path, is_excel=False)
-    df_raw_2013_2022 = map_columns(df_raw_2013_2022, COLUMN_MAPPINGS_2013_2022)
-    df_raw_2013_2022 = map_features(
-        df_raw_2013_2022, COLUMN_MAPPINGS_2013_2022, VALUE_MAPPINGS_2013_2022
+    df_raw_2013_2022 = read_csv(csv_file_path, delimiter=",", low_memory=False)
+
+    df_mapped = run_data_mapping(
+        df_raw_2023,
+        df_raw_2013_2022,
+        COLUMN_MAPPINGS_2023,
+        VALUE_MAPPINGS_2023,
+        COLUMN_MAPPINGS_2013_2022,
+        VALUE_MAPPINGS_2013_2022,
     )
-    df_raw_2013_2022 = clean_data(df_raw_2013_2022)
-
-    # Combine datasets
-    df_combined = pd.concat([df_raw_2023, df_raw_2013_2022], ignore_index=True)
-
-    # Delete ID column if it exists
-    if "ID" in df_combined.columns:
-        df_combined.drop(columns=["ID"], inplace=True)
-
-    # Set the index as ID
-    df_combined.reset_index(drop=True, inplace=True)  # Reset index to avoid confusion
-    df_combined.index.name = "ID"  # Set the index name to 'ID'
-
-    # Define columns to retain based on prefixes
-    columns_to_retain = [
-        col
-        for col in df_combined.columns
-        if col.startswith(("AbuseInfo", "Context", "Date"))
-    ]
-
-    # Delete unnecessary columns
-    current_columns = df_combined.columns.tolist()
-    mapped_columns = set(COLUMN_MAPPINGS_2023.values()) | set(
-        COLUMN_MAPPINGS_2013_2022.values()
-    )
-
-    # Find columns in df that are not in COLUMN_MAPPINGS and are not in columns_to_retain
-    unmapped_columns = [
-        col
-        for col in current_columns
-        if col not in mapped_columns and col not in columns_to_retain
-    ]
-
-    # Drop the unmapped columns
-    df_combined.drop(columns=unmapped_columns, inplace=True, errors="ignore")
 
     # Save combined dataset
-    output_file_path = Path(DATA_DIR) / "mapped"
-    output_file_path.mkdir(
-        parents=True, exist_ok=True
-    )  # Create output directory if it doesn't exist
-    df_combined.to_csv(output_file_path / "mapped_data.csv", index=False)
-
-
-if __name__ == "__main__":
-    main()
+    output_file_path = Path(DATA_DIR) / "processed"
+    write_csv(
+        data=df_mapped,
+        file_path=output_file_path / "mapped_data.csv",
+        index=False,
+    )

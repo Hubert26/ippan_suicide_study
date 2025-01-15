@@ -5,133 +5,178 @@ Created on Sun Nov 24 19:57:12 2024
 @author: huber
 """
 
+import sys
+from pathlib import Path
+from dotenv import dotenv_values
 import pandas as pd
-import numpy as np
+import statsmodels.api as sm
+from sklearn.utils.class_weight import compute_class_weight
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
+# Load environment variables from the .env file
+env_vars = dotenv_values()  # Load variables from the .env file
 
-from utils.dataframe_utils import read_csv_file, filter_dataframe
-from utils.file_utils import create_directory
-from config import *
+# Get the workspace path from the environment variables
+WORKSPACE_PATH = Path(env_vars.get("WORKSPACE_PATH"))  # Fetch WORKSPACE_PATH from .env
 
+if not WORKSPACE_PATH:
+    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
+
+# Add the WORKSPACE_PATH folder to the Python path
+sys.path.append(str(WORKSPACE_PATH))
+
+# Import custom utility functions
+from src.config.utils import read_excel, write_excel, read_csv
+from src.models.ml_utils import validate_model, run_stratified_kfold
+
+DATA_DIR = Path(env_vars["DATA_DIR"])
+RESULTS_DIR = Path(env_vars["RESULTS_DIR"])
 
 # ================================================================================
 # Data reading
 # ================================================================================
-csv_file_path = RESULTS_DIR / "poLCA" / "Group_AG.csv"
-lca_classes = read_csv_file(
-    csv_file_path, delimiter=",", low_memory=False, index_col=None
-)
+excel_file_path = DATA_DIR / "processed" / "lca_group_results.xlsx"
+lca_classes = read_excel(excel_file_path, sheet_name="Group_AG", index_col=None)
 
-csv_file_path = DATA_DIR / "encoded" / "encoded_data.csv"
-df_encoded = read_csv_file(
-    csv_file_path, delimiter=",", low_memory=False, index_col=None
-)
+csv_file_path = DATA_DIR / "processed" / "group_set.csv"
+group_set = read_csv(csv_file_path)
+
+# select columns
+group_column = "Group_AG"
+target_column = "Fatal"
+classification_features = ["LCA_Group_AG_class"]
+
+group_set = group_set[["ID", group_column, target_column]]
+lca_classes = lca_classes[["ID"] + classification_features]
 
 # merging
-df_encoded = df_encoded.merge(lca_classes, on="ID", how="left")
+df_data = group_set.merge(lca_classes, on="ID", how="left")
+df_data = df_data.drop(columns=["ID"], inplace=False)
 
-groups = sorted(list(set(df_encoded["Group_AG"])))
+groups = sorted(list(set(group_set[group_column])))
 
 
 # ================================================================================
 # statsmodels
 # ================================================================================
-import statsmodels.api as sm
-
+# Lists for storing results
 results_data = []
+validation_data = []
 
 for group in groups:
     try:
-        # Select Group from Group_AG
-        group_data = filter_dataframe(df_encoded, Group_AG=group)
+        # Filter data for the current group
+        df_group = df_data[df_data[group_column] == group].copy()
+        df_group = df_group.drop(columns=[group_column])  # Remove the group column
+        df_group[classification_features] = df_group[classification_features].astype(
+            "category"
+        )
 
-        group_data["Predicted_Class_Group_AG"] = group_data[
-            "Predicted_Class_Group_AG"
-        ].astype("category")
+        # Prepare the target variable (y) and features (X)
+        y = df_group[target_column].astype(int)  # Convert the target to integers
+        X = df_group.drop(
+            columns=[target_column], errors="ignore"
+        )  # Drop the target column from features
+        X = pd.get_dummies(X, drop_first=True)  # Apply one-hot encoding
+        X = X.loc[:, X.nunique() > 1]  # Remove constant columns (zero variance)
 
-        # Selects columns
-        X = pd.get_dummies(group_data["Predicted_Class_Group_AG"], drop_first=True)
-        y = group_data["Fatal"]  # Zmienna zależna
+        # Check for minimum requirements for the model
+        if X.empty or len(y.unique()) < 2:
+            print(
+                f"Skipping group {group}: insufficient data or no variance in target."
+            )
+            continue
 
-        y = y.astype(int)
+        # Ensure all features are numeric
         X = X.astype(int)
 
-        X = sm.add_constant(X)
-        logreg_model = sm.Logit(y, X)
-        result = logreg_model.fit(disp=0)
+        # Compute class weights for balanced handling
+        class_weights = compute_class_weight(
+            class_weight="balanced", classes=y.unique(), y=y
+        )
+        weight_mapping = dict(zip(y.unique(), class_weights))
+        df_group["weights"] = y.map(weight_mapping)  # Map weights to each observation
 
-        # Wyodrębnij istotne informacje z modelu
-        for param, coeff in result.params.items():
+        # Add a constant column for the intercept
+        X = sm.add_constant(X)
+
+        # Train the model using sm.Logit
+        model = sm.Logit(y, X)
+        result = model.fit(disp=0)
+
+        # Store parameter results (coefficients, p-values, and standard errors)
+        for param in result.params.index:
             results_data.append(
                 {
-                    "Group": group,
-                    "Variable": param,
-                    "Coefficient": coeff,
-                    "P-value": result.pvalues[param],
-                    "Standard Error": result.bse[param],
-                    "Log-Likelihood": result.llf,
-                    "AIC": result.aic,
-                    "BIC": result.bic,
+                    "group": group,
+                    "param": param,
+                    "coeff": result.params[param],
+                    "pvalues": result.pvalues[param],
+                    "bse": result.bse[param],  # Standard error of the coefficient
                 }
             )
-    except Exception as e:
-        print(f"Error processing group {group}: {e}")
 
-    # Tworzenie DataFrame z wynikami
-    statsmodels_results_df = pd.DataFrame(results_data)
+        # Calculate evaluation metrics (precision, recall, etc.)
+        y_pred = (result.predict(X) >= 0.5).astype(int)
+        accuracy = accuracy_score(y, y_pred)
+        precision = precision_score(y, y_pred, zero_division=0)
+        recall = recall_score(y, y_pred, zero_division=0)
+        f1 = f1_score(y, y_pred, zero_division=0)
 
-
-# ================================================================================
-# sklearn
-# ================================================================================
-from sklearn.linear_model import LogisticRegression
-
-results_data = []
-
-for group in groups:
-    # Select Group from Group_AG
-    group_data = filter_dataframe(df_encoded, Group_AG=group)
-    group_data["Predicted_Class_Group_AG"] = group_data[
-        "Predicted_Class_Group_AG"
-    ].astype("category")
-
-    # Select columns
-    X = group_data[["Predicted_Class_Group_AG"]]  # Zmienna niezależna
-    y = group_data["Fatal"]  # Zmienna zależna
-
-    X = pd.get_dummies(group_data["Predicted_Class_Group_AG"], drop_first=True)
-    # Zakładamy, że 'Fatal' ma wartości 'True'/'False', przekształcamy na int
-    y = y.astype(int)
-    X = X.astype(int)
-
-    # Używamy modelu regresji logistycznej
-    logreg_model = LogisticRegression(
-        max_iter=1000
-    )  # Zwiększamy max_iter w razie potrzeby
-    logreg_model.fit(X, y)
-
-    log_likelihood = np.sum(np.log(logreg_model.predict_proba(X)[np.arange(len(y)), y]))
-    # Przechowywanie wyników
-    for col, coef in zip(X.columns, logreg_model.coef_[0]):
-        results_data.append(
+        # Store general model metrics for validation
+        validation_data.append(
             {
-                "Group": group,
-                "Variable": col,
-                "Coefficient": coef,
-                "Intercept": logreg_model.intercept_[0],
-                "Log-Likelihood": log_likelihood,
-                "AIC": 2 * (X.shape[1] + 1) - 2 * log_likelihood,  # Aproksymacja AIC
-                "BIC": np.log(len(y)) * (X.shape[1] + 1) - 2 * log_likelihood,
+                "group": group,
+                "llf": result.llf,  # Log-Likelihood
+                "AIC": result.aic,  # Akaike Information Criterion
+                "BIC": result.bic,  # Bayesian Information Criterion
+                "accuracy": accuracy,
+                "precision": precision,
+                "recall": recall,
+                "f1_score": f1,
             }
         )
 
-# Tworzenie DataFrame z wynikami
-sklearn_results_df = pd.DataFrame(results_data)
+    except Exception as e:
+        print(f"Error processing group {group}: {e}")
 
+# Convert results to DataFrame
+results_df = pd.DataFrame(results_data)
 
-# Saveing
-file_path = RESULTS_DIR / "logreg"
-create_directory(file_path)
-file_name = "logreg_results_ref.xlsx"
-# write_to_excel(dataframe=statsmodels_results_df, file_path= file_path / file_name, sheet_name='statsmodel', mode='w', index=False )
-# write_to_excel(dataframe=sklearn_results_df, file_path= file_path / file_name, sheet_name='sklearn', mode='a', index=False )
+# Pivot parameter results into a wide format
+if not results_df.empty:
+    wide_results_df = results_df.pivot(
+        index="group", columns="param", values=["coeff", "pvalues", "bse"]
+    )
+    # Flatten the column index created by pivot
+    wide_results_df.columns = [
+        f"{metric}_{param}" for metric, param in wide_results_df.columns
+    ]
+
+    # Remove the "LCA_Group_AG_class_" prefix from column names
+    wide_results_df.columns = [
+        col.replace("LCA_Group_AG_class_", "") for col in wide_results_df.columns
+    ]
+
+    wide_results_df.reset_index(inplace=True)
+else:
+    wide_results_df = pd.DataFrame()  # Empty DataFrame if no results are available
+
+# Convert validation metrics to DataFrame
+validation_df = pd.DataFrame(validation_data)
+
+write_excel(
+    file_path=RESULTS_DIR / "logreg_model_results_lca.xlsx",
+    data=wide_results_df,
+    sheet_name="coefficients",
+    mode="w",
+    index=False,
+)
+
+write_excel(
+    file_path=RESULTS_DIR / "logreg_model_results_lca.xlsx",
+    data=validation_df,
+    sheet_name="validation_metrics",
+    mode="a",
+    index=False,
+)
