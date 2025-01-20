@@ -2,6 +2,9 @@ library("dotenv")
 library(poLCA)
 library(dplyr)
 library(openxlsx2)
+library(writexl)
+library(readxl)
+library(purrr)
 
 
 load_environment_variables <- function(required_vars = NULL, env_file_path = ".env") {
@@ -177,8 +180,8 @@ write_excel <- function(file_path, data, ...) {
   if (!inherits(data, "data.frame")) {
     stop("The 'data' argument must be a data.frame or tibble.")
   }
-
-  # Normalize and debug file path
+  
+  # Normalize and validate file path
   file_path <- normalizePath(file_path, winslash = "/", mustWork = FALSE)
   print(paste("Normalized file path:", file_path))
   
@@ -192,54 +195,90 @@ write_excel <- function(file_path, data, ...) {
     stop(paste("The directory does not exist:", dir_path))
   }
 
+  # Extract additional arguments
+  args <- list(...)
+  sheet_name <- if (!is.null(args$sheet_name)) args$sheet_name else "Sheet1"
+  if_sheet_exists <- if (!is.null(args$if_sheet_exists)) args$if_sheet_exists else "replace"
+  print(paste("Sheet name:", sheet_name))
+  print(paste("If sheet exists:", if_sheet_exists))
+  
   # Check if file exists
   file_exists <- file.exists(file_path)
   print(paste("File exists:", file_exists))
+  
+  wb_data <- list()
 
-  # Load or create workbook
   if (file_exists) {
-    wb <- wb_load(file_path)
-    sheet_names <- wb$sheet_names
-    print(paste("Existing sheet names:", toString(sheet_names)))
-  } else {
-    wb <- wb_workbook()
-    sheet_names <- character(0)
+    # Load existing workbook
+    tryCatch({
+      sheet_names <- readxl::excel_sheets(file_path)
+      wb_data <- map(setNames(sheet_names, sheet_names), ~ readxl::read_excel(file_path, sheet = .x))
+    }, error = function(e) {
+      stop(paste("Failed to read existing Excel file. Error:", e$message))
+    })
   }
 
-  # Extract additional arguments
-  args <- list(...)
-  sheet_name <- args$sheet_name %||% "Sheet1"
-  if_sheet_exists <- args$if_sheet_exists %||% "replace"
-  print(paste("Sheet name:", sheet_name))
-  print(paste("If sheet exists:", if_sheet_exists))
-
-  # Handle existing sheet
-  if (sheet_name %in% sheet_names) {
+  # Handle sheet existence
+  if (sheet_name %in% names(wb_data)) {
     if (if_sheet_exists == "replace") {
-      wb$remove_worksheet(sheet_name)
-      wb$add_worksheet(sheet_name)
+      wb_data[[sheet_name]] <- data
     } else if (if_sheet_exists == "overlay") {
-      # Append new data to existing sheet
-      existing_data <- wb_to_df(wb, sheet = sheet_name)
-      data <- rbind(existing_data, data)
-      wb$remove_worksheet(sheet_name)
-      wb$add_worksheet(sheet_name)
+      wb_data[[sheet_name]] <- rbind(wb_data[[sheet_name]], data)
     } else {
       stop("Invalid 'if_sheet_exists' value. Use 'replace' or 'overlay'.")
     }
   } else {
-    # Add a new worksheet
-    wb$add_worksheet(sheet_name)
+    wb_data[[sheet_name]] <- data
   }
-
-  # Write data to the specified sheet
-  wb$add_data(sheet = sheet_name, x = data)
-
-  # Save the workbook
+  
+  # Write the data to the Excel file
   tryCatch({
-    wb$save(file_path)
+    writexl::write_xlsx(wb_data, path = file_path)
     message(paste("Data successfully written to:", file_path, "in sheet:", sheet_name))
   }, error = function(e) {
     stop(paste("Failed to save workbook at:", file_path, "\nError:", e$message))
   })
+}
+
+read_excel <- function(file_path, ...) {
+  # Validate the file path
+  file_path <- normalizePath(file_path, winslash = "/", mustWork = FALSE)
+  if (!grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
+    stop("The file path must end with '.xlsx'.")
+  }
+
+  # Check if the file exists
+  if (!file.exists(file_path)) {
+    stop(paste("The file does not exist:", file_path))
+  }
+  
+  # Load the workbook
+  wb <- tryCatch(
+    wb_load(file_path),
+    error = function(e) {
+      stop(paste("Failed to load the Excel file:", file_path, "\nError:", e$message))
+    }
+  )
+  
+  # Retrieve sheet names
+  sheet_names <- wb$sheet_names
+  print(paste("Sheet names in the workbook:", toString(sheet_names)))
+  
+  # Extract additional arguments
+  args <- list(...)
+  sheet_name <- if (!is.null(args$sheet_name)) args$sheet_name else sheet_names[1]  # Default to the first sheet
+  if (!sheet_name %in% sheet_names) {
+    stop(paste("The specified sheet does not exist:", sheet_name))
+  }
+
+  # Read the data from the specified sheet
+  data <- tryCatch(
+    wb_to_df(wb, sheet = sheet_name),
+    error = function(e) {
+      stop(paste("Failed to read the sheet:", sheet_name, "\nError:", e$message))
+    }
+  )
+  
+  # Return the data
+  return(data)
 }

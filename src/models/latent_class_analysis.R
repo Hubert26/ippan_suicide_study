@@ -10,6 +10,8 @@ library(here)
 library(poLCA)
 library(dotenv)
 
+.libPaths("C:/Users/huber/anaconda3/envs/python_r_env/Lib/R/library")
+
 # Load environment variables
 load_dot_env()
 
@@ -19,6 +21,10 @@ WORKSPACE_PATH <- normalizePath(WORKSPACE_PATH)
 
 # Source utility functions
 source(file.path(WORKSPACE_PATH, "src/config/utils.R"))
+
+MOMENT_OF_SUICIDE_FEATURES <- split_string(Sys.getenv("MOMENT_OF_SUICIDE_FEATURES"))
+SOCIO_DEMOGRAPHIC_FEATURES <- split_string(Sys.getenv("SOCIO_DEMOGRAPHIC_FEATURES"))
+
 
 #================================================================================
 # Load Data
@@ -31,14 +37,6 @@ group_set_path <- file.path(WORKSPACE_PATH, "data/processed/group_set.csv")
 # Read data
 encoded_data <- read_csv(encoded_data_path)
 group_set <- read_csv(group_set_path)
-
-#================================================================================
-# Prepare Data for LCA
-#================================================================================
-
-# Get feature prefixes from environment variables
-MOMENT_OF_SUICIDE_FEATURES <- split_string(Sys.getenv("MOMENT_OF_SUICIDE_FEATURES"))
-SOCIO_DEMOGRAPHIC_FEATURES <- split_string(Sys.getenv("SOCIO_DEMOGRAPHIC_FEATURES"))
 
 # Combine feature prefixes
 prefixes_to_lca <- unique(c(MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES))

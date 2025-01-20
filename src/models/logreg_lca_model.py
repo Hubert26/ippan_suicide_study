@@ -27,7 +27,6 @@ sys.path.append(str(WORKSPACE_PATH))
 
 # Import custom utility functions
 from src.config.utils import read_excel, write_excel, read_csv
-from src.models.ml_utils import validate_model, run_stratified_kfold
 
 DATA_DIR = Path(env_vars["DATA_DIR"])
 RESULTS_DIR = Path(env_vars["RESULTS_DIR"])

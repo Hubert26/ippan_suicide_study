@@ -268,58 +268,107 @@ def left_join_excel_sheets(file_path, base_df=None, on=None, **kwargs):
     return base_df
 
 
-def aggregate_vertical(
-    df, index_columns=None, target_columns=None, header="Aggregations", agg_func="count"
-):
+def aggregate_count(df, group_columns=None, value_columns=None, header="Count"):
     """
-    Aggregates a DataFrame vertically across specified index_columns.
-    Creates a hierarchical index: first level as column names (index_columns),
-    second level as unique values from those columns, with aggregations for target_columns.
+    Aggregates and counts occurrences in a DataFrame grouped by specified columns.
+    Creates a hierarchical structure with `group_columns` and `value_columns`.
 
     Parameters:
     - df (pd.DataFrame): The input DataFrame to aggregate.
-    - index_columns (list): List of column names to aggregate.
-    - target_columns (list or None): List of numerical column names to include in the aggregation.
-    - header (str): Header for the resulting aggregation columns.
-    - agg_func (str): Aggregation function to apply ('count', 'sum', 'mean').
+    - group_columns (list): List of column names to group by.
+    - value_columns (list or None): List of column names whose unique values become new columns.
+    - header (str): Header for the resulting count column.
 
     Returns:
-    - pd.DataFrame: A DataFrame with a hierarchical index and aggregated columns.
+    - pd.DataFrame: A DataFrame with hierarchical structure and counts.
     """
-    if index_columns is None or not index_columns:
-        raise ValueError("index_columns cannot be None or empty.")
-    if agg_func not in ["count", "sum", "mean"]:
-        raise ValueError("agg_func must be one of ['count', 'sum', 'mean'].")
+    # Validate input
+    if group_columns is None or not group_columns:
+        raise ValueError("group_columns cannot be None or empty.")
 
-    # Initialize an empty list to store results
-    result = []
+    # Initialize results
+    results = []
 
-    for col in index_columns:
-        if target_columns is None or not target_columns:
-            # Aggregate the unique values in index_columns
-            if agg_func == "count":
-                counts = df[col].value_counts().reset_index()
-                counts.columns = [col, "Aggregation"]
-            elif agg_func == "sum" or agg_func == "mean":
-                if not pd.api.types.is_numeric_dtype(df[col]):
-                    raise ValueError(f"Column '{col}' must be numeric for {agg_func}.")
-                counts = df[col].agg([agg_func]).reset_index()
-                counts.columns = [col, "Aggregation"]
-
-            counts["Column"] = col
-            counts.set_index(["Column", col], inplace=True)
-            counts.rename(columns={"Aggregation": header}, inplace=True)
+    # Process each group column
+    for group_col in group_columns:
+        if value_columns is None:
+            # Count unique occurrences in the group column
+            counts = df[group_col].value_counts().reset_index()
+            counts.columns = ["Value", header]
+            counts["Column"] = group_col
+            counts.set_index(["Column", "Value"], inplace=True)
+            results.append(counts)
         else:
-            # Perform aggregation for each target column grouped by the index column
-            agg_df = df.groupby(col)[target_columns].agg(agg_func).reset_index()
-            agg_df["Column"] = col
-            agg_df.set_index(["Column", col], inplace=True)
-            counts = agg_df
+            # Group by group_col and value_columns
+            grouped = (
+                df.groupby([group_col] + value_columns).size().reset_index(name=header)
+            )
 
-        # Append to results
-        result.append(counts)
+            # Pivot value_columns into separate columns
+            pivot_table = grouped.pivot(
+                index=group_col, columns=value_columns[0], values=header
+            ).fillna(0)
 
-    # Concatenate results for all index_columns
-    summary_df = pd.concat(result)
+            # Reset index and include group_col as part of hierarchical index
+            pivot_table["Column"] = group_col
+            pivot_table.reset_index(inplace=True)
+            pivot_table.set_index(["Column", group_col], inplace=True)
 
-    return summary_df
+            results.append(pivot_table)
+
+    # Combine results into a single DataFrame
+    combined_results = pd.concat(results, axis=0)
+
+    # Ensure proper column names and indices
+    if value_columns is not None:
+        combined_results.columns.name = None  # Remove column name for value_columns
+    return combined_results
+
+
+def aggregate_sum(df, group_columns=None, value_columns=None, header=None):
+    """
+    Aggregates a DataFrame using the 'sum' function.
+    Creates a hierarchical index for `group_columns` and aggregates numerical `value_columns`.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame to aggregate.
+    - group_columns (list): List of column names to group by and create hierarchical index.
+    - value_columns (list): List of numerical column names to aggregate.
+    - header (str or None): Prefix for the resulting aggregation columns. If None, no prefix is added.
+
+    Returns:
+    - pd.DataFrame: A DataFrame with hierarchical index and aggregated columns.
+    """
+    # Validate input
+    if group_columns is None or not group_columns:
+        raise ValueError("group_columns cannot be None or empty.")
+    if value_columns is None or not value_columns:
+        raise ValueError("value_columns cannot be None or empty.")
+
+    # Check if value_columns are numeric
+    for col in value_columns:
+        if not pd.api.types.is_numeric_dtype(df[col]):
+            raise ValueError(f"Column '{col}' must be numeric for sum aggregation.")
+
+    # Initialize results
+    results = []
+
+    # Process each group column
+    for group_col in group_columns:
+        # Group by the group column and aggregate the value columns
+        grouped = df.groupby(group_col)[value_columns].sum().reset_index()
+
+        # Add "Column" level to the index for hierarchical structure
+        grouped["Column"] = group_col
+        grouped.set_index(["Column", group_col], inplace=True)
+
+        # Optionally rename the columns with the header prefix
+        if header:
+            grouped.columns = [f"{header}_{col}" for col in grouped.columns]
+
+        results.append(grouped)
+
+    # Concatenate results for all group_columns
+    result_df = pd.concat(results)
+
+    return result_df

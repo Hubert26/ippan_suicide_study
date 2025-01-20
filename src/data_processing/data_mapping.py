@@ -595,7 +595,12 @@ def run_data_mapping(
     df_2013_2022 = clean_data(df_2013_2022, value_mappings_2013_2022, PREXES_TO_RETAIN)
 
     df_combined = pd.concat([df_2023, df_2013_2022], ignore_index=True)
-    df_combined.reset_index(drop=True, inplace=True)
+
+    df_combined.drop(columns=["ID"], inplace=True)  # Drop the original "ID" column
+    df_combined.reset_index(drop=False, inplace=True)  # Reset the index
+    df_combined.rename(
+        columns={"index": "ID"}, inplace=True
+    )  # Rename the new index column to "ID"
     return df_combined
 
 
