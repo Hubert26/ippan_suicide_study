@@ -1,17 +1,13 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        
-
         {
             "type": "R-Debugger",
             "name": "Launch R-Workspace",
             "request": "launch",
             "debugMode": "workspace",
-            "workingDirectory": "${workspaceFolder}"
+            "workingDirectory": "${workspaceFolder}",
+            "rPath": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe"
         },
         {
             "type": "R-Debugger",
@@ -19,7 +15,8 @@
             "request": "launch",
             "debugMode": "file",
             "workingDirectory": "${workspaceFolder}",
-            "file": "${file}"
+            "file": "${file}",
+            "rPath": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe"
         },
         {
             "type": "R-Debugger",
@@ -29,7 +26,8 @@
             "workingDirectory": "${workspaceFolder}",
             "file": "${file}",
             "mainFunction": "main",
-            "allowGlobalDebugging": false
+            "allowGlobalDebugging": false,
+            "rPath": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe"
         },
         {
             "type": "R-Debugger",
@@ -40,13 +38,15 @@
             "includePackageScopes": true,
             "loadPackages": [
                 "."
-            ]
+            ],
+            "rPath": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe"
         },
         {
             "type": "R-Debugger",
             "request": "attach",
             "name": "Attach to R process",
-            "splitOverwrittenOutput": true
+            "splitOverwrittenOutput": true,
+            "rPath": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe"
         }
     ]
 }

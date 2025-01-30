@@ -1,0 +1,9 @@
+{
+    "r.rterm.windows": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe",
+    "r.rpath.windows": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe",
+    "r.lsp.path": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts/R.exe",
+    "terminal.integrated.env.windows": {
+        "CONDA_DEFAULT_ENV": "python_r_env",
+        "PATH": "C:/Users/huber/anaconda3/envs/python_r_env/Scripts;${env:PATH}"
+    }
+}
