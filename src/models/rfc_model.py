@@ -1,118 +1,137 @@
+import sys
+from pathlib import Path
+from dotenv import dotenv_values
+from sklearn.utils.class_weight import compute_class_weight
+from sklearn.ensemble import RandomForestClassifier
+
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import sys
-from dotenv import load_dotenv
-import os
 
-# %%
 # Load environment variables from the .env file
-load_dotenv()
+env_vars = dotenv_values()  # Load variables from the .env file
 
-# Convert DATA_DIR to a Path object
-DATA_DIR = Path(os.getenv("DATA_DIR"))
+# Get the workspace path from the environment variables
+WORKSPACE_PATH = Path(
+    env_vars.get("WORKSPACE_PATH", "")
+)  # Fetch WORKSPACE_PATH from .env
 
-# Read CSV File
-csv_file_path = DATA_DIR / "encoded" / "encoded_final_set.csv"
-try:
-    df_raw = pd.read_csv(csv_file_path, delimiter=",", low_memory=False)
-except FileNotFoundError:
-    print(f"Error: The file {csv_file_path} was not found.")
-    sys.exit(1)
+if not WORKSPACE_PATH:
+    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
 
-# %%
-from sklearn.datasets import make_classification
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import (
-    accuracy_score,
-    precision_score,
-    recall_score,
-    f1_score,
-    roc_auc_score,
-    confusion_matrix,
-)
-from sklearn.model_selection import StratifiedKFold
-from sklearn.utils.class_weight import compute_class_weight
+# Add the WORKSPACE_PATH folder to the Python path
+sys.path.append(str(WORKSPACE_PATH))
 
-# Definicja siatki parametrów do RandomForestClassifier (opcjonalnie)
-param_grid = {
-    "n_estimators": 100,
-    "max_features": "sqrt",
-    "max_depth": None,
-    "min_samples_split": 10,
-    "min_samples_leaf": 10,
-}
-
-# Stratified k-fold cross-validation
-skf = StratifiedKFold(n_splits=2)
-all_models = []
-class_weights_all = []
-all_results = pd.DataFrame()
-
-for fold, (train_index, test_index) in enumerate(skf.split(X, Y), 1):
-    X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-    y_train, y_test = Y.iloc[train_index], Y.iloc[test_index]
-
-    # Oblicz wagi klas
-    class_weights = compute_class_weight(
-        "balanced", classes=np.unique(y_train), y=y_train
-    )
-    class_weights_dict = {i: class_weights[i] for i in range(len(class_weights))}
-    class_weights_all.append(class_weights_dict)
-
-    # Inicjalizacja modelu RandomForestClassifier
-    rf = RandomForestClassifier(
-        random_state=42, **param_grid, class_weight=class_weights_dict
-    )
-
-    # Trenowanie modelu na zestawie treningowym
-    rf.fit(X_train, y_train)
-
-    # Dodanie do listy wytrenowanych modeli
-    all_models.append(rf)
-
-    # Walidacja modelu na danych testowych
-    model_results = model_validation(rf, X_test, y_test, risk_thresholds)
-
-    model_results["features"] = X_train.shape[1]
-    model_results["train_size"] = len(y_train)
-    model_results["class_0_train_size"] = (y_train == 0).sum()
-    model_results["class_1_train_size"] = (y_train == 1).sum()
-    model_results["test_size"] = len(y_test)
-    model_results["class_weight_0"] = class_weight_dict[0]
-    model_results["class_weight_1"] = class_weight_dict[1]
-    model_results["fold"] = str(fold)
-
-    # Dodanie wyników do ramki danych
-    all_results = pd.concat([all_results, model_results], ignore_index=True)
-
-    # Obliczenie średnich dla każdej kolumny
-mean_values = all_results.select_dtypes(include=np.number).mean()
-# Dodanie średnich jako nowego wiersza
-mean_values["fold"] = "mean"  # Oznaczenie wiersza ze średnimi
-
-all_results = pd.concat([all_results, pd.DataFrame(mean_values).T], ignore_index=True)
-
-# Uśrednienie wag klas
-avg_class_weights = {}
-for class_id in range(len(np.unique(Y))):
-    avg_weight = np.mean([weights[class_id] for weights in class_weights_all])
-    avg_class_weights[class_id] = avg_weight
-
-# Połączenie wszystkich modeli w jeden model
-final_rf = RandomForestClassifier(
-    random_state=42, **param_grid, class_weight=avg_class_weights
+# Import custom utility functions
+from src.config.utils import (
+    read_csv,
+    split_string,
 )
 
-# Łączenie drzew z poszczególnych modeli
-combined_estimators = []
-for model in all_models:
-    for tree in model.estimators_:
-        combined_estimators.append(tree)
+from src.models.ml_utils import (
+    validate_model,
+    run_stratified_kfold,
+    compute_permutation_importance,
+    compute_mean_decrease_accuracy,
+)
 
-final_rf.estimators_ = combined_estimators
+DATA_DIR = Path(env_vars["DATA_DIR"])
+RESULTS_DIR = Path(env_vars["RESULTS_DIR"])
+MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
+SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
 
-# Ostateczne dopasowanie modelu do całego zestawu danych
-final_rf.fit(X, Y)
+# Read encoded data
+csv_file_path = DATA_DIR / "processed" / "encoded_data.csv"
+if not csv_file_path.exists():
+    raise FileNotFoundError(f"File not found: {csv_file_path}")
 
-rf_results = model_validation(rf, X, Y, risk_thresholds)
+df_raw = read_csv(csv_file_path)
+
+# Read group set
+csv_file_path = DATA_DIR / "processed" / "group_set.csv"
+if not csv_file_path.exists():
+    raise FileNotFoundError(f"File not found: {csv_file_path}")
+df_groups = read_csv(csv_file_path)
+
+
+# Groups
+group_columns = ["Group_A", "Group_AG"]
+
+for group_column in group_columns:
+    df_group_column = df_raw.merge(df_groups[["ID", group_column]], on="ID", how="left")
+    # Features
+    features_dict = {
+        "SOCIO_DEMOGRAPHIC_FEATURES": SOCIO_DEMOGRAPHIC_FEATURES,
+        "MOMENT_OF_SUICIDE_FEATURES": MOMENT_OF_SUICIDE_FEATURES,
+    }
+
+    for feature_group, features in features_dict.items():
+        # Select columns based on features
+        columns_to_aggregate = [
+            column
+            for column in df_group_column.columns
+            if any(column.startswith(feature) for feature in features)
+        ]
+        if not columns_to_aggregate:
+            raise ValueError(f"No matching columns found for features: {features}")
+
+        df_group_features = df_group_column[columns_to_aggregate + [group_column]]
+
+        group_values = sorted(list(set(df_group_features[group_column])))
+
+        for group_value in group_values:
+            df_group = df_group_features[
+                df_group_features[group_column] == group_value
+            ].copy()
+
+            target_column = "Fatal"
+            classification_features = [
+                col for col in columns_to_aggregate if col != target_column
+            ]
+
+            # Prepare the target variable 'Y' and features 'X'
+            Y = df_group[target_column]
+            X = df_group[classification_features]
+
+            # Prepare the list of feature names
+            feature_names = X.columns.tolist()
+
+            # Compute class weights based on the entire dataset to handle inbalance in classes
+            class_weights = compute_class_weight(
+                class_weight="balanced", classes=np.unique(Y), y=Y
+            )
+            class_weights_dict = {
+                cls: weight for cls, weight in zip(np.unique(Y), class_weights)
+            }
+
+            # Initialize model
+            model = RandomForestClassifier(
+                max_depth=None, min_samples_split=10, min_samples_leaf=10
+            )
+            param_grid = {
+                "n_estimators": 100,
+                "max_features": "sqrt",
+                "max_depth": None,
+                "min_samples_split": 10,
+                "min_samples_leaf": 10,
+            }
+
+            # Perform stratified K-Fold validation
+            skf_final, skf_results = run_stratified_kfold(model, X, Y, n_splits=5)
+
+            # Compute permutation importance
+            perm_importance = compute_permutation_importance(model, X, Y)
+
+            # Compute mean decrease accuracy
+            mean_decrease_accuracy = compute_mean_decrease_accuracy(model, X, Y)
+
+            # Specify the output Excel file name
+            output_file = f"rfc_{group_column}_{feature_group}_{group_value}.xlsx"
+
+            # Write the DataFrames to separate sheets in an Excel file
+            with pd.ExcelWriter(
+                RESULTS_DIR / "rfc_model_results" / output_file, engine="xlsxwriter"
+            ) as writer:
+                skf_final.to_excel(writer, sheet_name="r_final", index=True)
+                skf_results.to_excel(writer, sheet_name="r_skf", index=True)
+                perm_importance.to_excel(writer, sheet_name="PI", index=False)
+                mean_decrease_accuracy.to_excel(writer, sheet_name="MDA", index=False)

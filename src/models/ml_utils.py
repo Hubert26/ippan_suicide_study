@@ -9,6 +9,8 @@ This file contains utility functions for machine learning model evaluation and m
 
 import pandas as pd
 import numpy as np
+from typing import Tuple
+
 
 from sklearn.metrics import (
     accuracy_score,
@@ -24,7 +26,7 @@ from sklearn.inspection import permutation_importance
 # %%
 def run_stratified_kfold(
     model, X: pd.DataFrame, Y: pd.Series, n_splits: int = 5, random_state: int = 42
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Perform Stratified K-Fold Cross-Validation for any model and return validation metrics.
 
