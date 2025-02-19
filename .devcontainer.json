@@ -1,0 +1,18 @@
+{
+  "name": "${localEnv:PROJECT_NAME}",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  "runArgs": ["--name", "${localEnv:PROJECT_NAME}_container"],
+  "extensions": [
+    "ms-python.python",
+    "ms-azuretools.vscode-docker",
+    "ms-toolsai.jupyter",
+    "codeium.codeium",
+    "ikuyadeu.r",
+    "rdebugger.r-debugger",
+    "ms-toolsai.datawrangler",
+    "REditorSupport.r"
+  ],
+  "remoteUser": "root"
+}

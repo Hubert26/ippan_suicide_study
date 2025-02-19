@@ -1,0 +1,21 @@
+# settings.yaml
+paths:
+  data: "data"
+  results: "results"
+  plots: "plots"
+
+moment_of_suicide_features:
+  - Method
+  - Substance
+  - Place
+  - Fatal
+
+socio_demographic_features:
+  - Income
+  - Education
+  - WorkInfo
+  - Marital
+  - Context
+  - AbuseInfo
+  - Gender
+  - Fatal

@@ -1,8 +1,22 @@
 #===============================================================================================
-# Data folders
+# Project specific
 #===============================================================================================
-data/
-results/
+data/*
+plots/*
+results/*
+!data/.gitkeep
+!plots/.gitkeep
+!results/.gitkeep
+
+# developers
+.vscode/
+*.code-workspace
+notebooks/drafts/
+
+# Temporary files
+*.tmp
+*.bak
+_avast_/
 
 #===============================================================================================
 #PYTHON
@@ -214,20 +228,3 @@ vignettes/*.pdf
 # R Environment Variables
 .Renviron
 
-#===============================================================================================
-# Project specific
-#===============================================================================================
-# Avast temporary files
-_avast_/
-
-# Additional data and results
-*.csv
-*.xlsx
-*.xls
-*.sav
-*.rds
-*.pkl
-
-# Temporary files
-*.tmp
-*.bak
