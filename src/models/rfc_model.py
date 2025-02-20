@@ -1,43 +1,20 @@
-import sys
-from pathlib import Path
-from dotenv import dotenv_values
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.ensemble import RandomForestClassifier
-
 import pandas as pd
 import numpy as np
 
-# Load environment variables from the .env file
-env_vars = dotenv_values()  # Load variables from the .env file
-
-# Get the workspace path from the environment variables
-WORKSPACE_PATH = Path(
-    env_vars.get("WORKSPACE_PATH", "")
-)  # Fetch WORKSPACE_PATH from .env
-
-if not WORKSPACE_PATH:
-    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
-
-# Add the WORKSPACE_PATH folder to the Python path
-sys.path.append(str(WORKSPACE_PATH))
-
-# Import custom utility functions
-from src.config.utils import (
+from src.helpers.utils import (
     read_csv,
     split_string,
 )
-
 from src.models.ml_utils import (
     validate_model,
     run_stratified_kfold,
     compute_permutation_importance,
     compute_mean_decrease_accuracy,
 )
+from src.helpers.config import DATA_DIR, RESULTS_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
 
-DATA_DIR = Path(env_vars["DATA_DIR"])
-RESULTS_DIR = Path(env_vars["RESULTS_DIR"])
-MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
-SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
 
 # Read encoded data
 csv_file_path = DATA_DIR / "processed" / "encoded_data.csv"

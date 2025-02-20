@@ -1,30 +1,11 @@
 """Data mapping module for standardizing and transforming suicide study dataset.
 Handles data from both 2023 and 2013-2022 periods."""
 
-import sys
-from pathlib import Path
-from dotenv import dotenv_values
 import pandas as pd
 from typing import List, Dict, Optional
 
-# Load environment variables from the .env file
-env_vars = dotenv_values()  # Load variables from the .env file
-
-# Get the workspace path from the environment variables
-WORKSPACE_PATH = Path(env_vars.get("WORKSPACE_PATH"))  # Fetch WORKSPACE_PATH from .env
-
-if not WORKSPACE_PATH:
-    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
-
-# Add the WORKSPACE_PATH folder to the Python path
-sys.path.append(str(WORKSPACE_PATH))
-
-# Import custom utility functions
-from src.config.utils import read_csv, write_csv, read_excel, split_string
-
-DATA_DIR = Path(env_vars["DATA_DIR"])
-MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
-SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
+from src.helpers.utils import read_csv, write_csv, read_excel
+from src.helpers.config import DATA_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
 
 # ================================================================================
 # MAPPING DICTIONARIES
@@ -608,10 +589,10 @@ def run_data_mapping(
 # PROCESS DATASETS
 # ================================================================================
 if __name__ == "__main__":
-    excel_file_path = Path(DATA_DIR) / "raw" / "Samobojstwa_2023.xlsx"
+    excel_file_path = DATA_DIR / "raw" / "Samobojstwa_2023.xlsx"
     df_raw_2023 = read_excel(excel_file_path)
 
-    csv_file_path = Path(DATA_DIR) / "raw" / "final_samobojstwa_2013_2022.csv"
+    csv_file_path = DATA_DIR / "raw" / "final_samobojstwa_2013_2022.csv"
     df_raw_2013_2022 = read_csv(csv_file_path, delimiter=",", low_memory=False)
 
     df_mapped = run_data_mapping(
@@ -624,9 +605,9 @@ if __name__ == "__main__":
     )
 
     # Save combined dataset
-    output_file_path = Path(DATA_DIR) / "processed"
+    csv_file_path = DATA_DIR / "processed"
     write_csv(
         data=df_mapped,
-        file_path=output_file_path / "mapped_data.csv",
+        file_path=csv_file_path / "mapped_data.csv",
         index=False,
     )

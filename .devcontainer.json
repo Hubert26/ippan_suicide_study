@@ -2,7 +2,7 @@
   "name": "${localEnv:PROJECT_NAME}",
   "dockerComposeFile": ["docker-compose.yml"],
   "service": "app",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/app",
   "runArgs": ["--name", "${localEnv:PROJECT_NAME}_container"],
   "extensions": [
     "ms-python.python",

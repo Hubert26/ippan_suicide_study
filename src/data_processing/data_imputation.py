@@ -4,28 +4,9 @@ Data imputation module for handling missing values in suicide study dataset.
 
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import sys
-from dotenv import dotenv_values
 
-# Load environment variables from the .env file
-env_vars = dotenv_values()  # Load variables from the .env file
-
-# Get the workspace path from the environment variables
-WORKSPACE_PATH = Path(env_vars.get("WORKSPACE_PATH"))  # Fetch WORKSPACE_PATH from .env
-
-if not WORKSPACE_PATH:
-    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
-
-# Add the WORKSPACE_PATH folder to the Python path
-sys.path.append(str(WORKSPACE_PATH))
-
-# Import custom utility functions
-from src.config.utils import read_csv, write_csv, split_string
-
-DATA_DIR = Path(env_vars["DATA_DIR"])
-MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
-SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
+from src.helpers.utils import read_csv, write_csv, split_string
+from src.helpers.config import DATA_DIR
 
 # ================================================================================
 # IMPUTATION FUNCTIONS

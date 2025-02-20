@@ -1,8 +1,8 @@
 FROM continuumio/miniconda3
 
-WORKDIR /workspace
+WORKDIR /app
 
-COPY environment.yml /workspace
+COPY environment.yml /app
 
 RUN conda env update --name base --file environment.yml
 

@@ -4,31 +4,12 @@ Data encoding module for encoding features from the imputed suicide study datase
 This module includes:
 - Performing one-hot encoding on categorical variables.
 """
-
-import sys
-from pathlib import Path
-from dotenv import dotenv_values
 import pandas as pd
 from typing import List, Optional
 
-# Load environment variables from the .env file
-env_vars = dotenv_values()  # Load variables from the .env file
+from src.helpers.utils import read_csv, write_csv
+from src.helpers.config import DATA_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
 
-# Get the workspace path from the environment variables
-WORKSPACE_PATH = Path(env_vars.get("WORKSPACE_PATH"))  # Fetch WORKSPACE_PATH from .env
-
-if not WORKSPACE_PATH:
-    raise ValueError("WORKSPACE_PATH is not defined in the .env file or is empty.")
-
-# Add the WORKSPACE_PATH folder to the Python path
-sys.path.append(str(WORKSPACE_PATH))
-
-# Import custom utility functions
-from src.config.utils import read_csv, write_csv, split_string
-
-DATA_DIR = Path(env_vars["DATA_DIR"])
-MOMENT_OF_SUICIDE_FEATURES = split_string(env_vars["MOMENT_OF_SUICIDE_FEATURES"])
-SOCIO_DEMOGRAPHIC_FEATURES = split_string(env_vars["SOCIO_DEMOGRAPHIC_FEATURES"])
 
 
 # %%

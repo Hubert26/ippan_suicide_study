@@ -1,7 +1,6 @@
 library("dotenv")
 library(poLCA)
 library(dplyr)
-library(openxlsx2)
 library(writexl)
 library(readxl)
 library(purrr)
@@ -26,10 +25,10 @@ load_environment_variables <- function(required_vars = NULL, env_file_path = ".e
   } else {
     stop(paste(".env file not found at the specified path:", env_file_path))
   }
-  
+
   # Fetch all environment variables
   env_vars <- Sys.getenv()
-  
+
   # Check for required variables
   if (!is.null(required_vars)) {
     missing_vars <- required_vars[!required_vars %in% names(env_vars) | env_vars[required_vars] == ""]
@@ -37,7 +36,7 @@ load_environment_variables <- function(required_vars = NULL, env_file_path = ".e
       stop(paste("Required environment variables are missing or empty:", paste(missing_vars, collapse = ", ")))
     }
   }
-  
+
   # Return all environment variables as a named character vector
   return(env_vars)
 }
@@ -50,16 +49,16 @@ split_string <- function(input_string, delimiter = ",", strip_whitespace = TRUE)
   #   strip_whitespace: A logical value indicating whether to strip whitespace. Defaults to TRUE.
   # Returns:
   #   A character vector of split strings.
-  
+
   elements <- unlist(strsplit(input_string, delimiter, fixed = TRUE))
-  
+
   if (strip_whitespace) {
     elements <- trimws(elements)
   }
 
   # Remove names if they exist
   names(elements) <- NULL
-  
+
   return(elements)
 }
 
@@ -75,7 +74,7 @@ check_file_exists <- function(file_path, error_message = NULL) {
   #
   # Raises:
   #   Error if the file does not exist.
-  
+
   if (!file.exists(file_path)) {
     stop(error_message %||% paste("File does not exist:", file_path))
   }
@@ -93,7 +92,7 @@ check_folder_exists <- function(folder_path, error_message = NULL) {
   #
   # Raises:
   #   Error if the folder does not exist.
-  
+
   if (!dir.exists(folder_path)) {
     stop(error_message %||% paste("Folder does not exist:", folder_path))
   }
@@ -110,22 +109,25 @@ create_folder <- function(folder_path) {
   #
   # Raises:
   #   Error if the folder cannot be created.
-  
+
   # Check if the folder exists
-  tryCatch({
-    check_folder_exists(folder_path)
-    print(paste("Folder", folder_path, "already exists."))
-  }, error = function(e) {
-    # If the folder does not exist, create it
-    print(paste("Folder does not exist. Creating folder:", folder_path))
-    dir.create(folder_path, recursive = TRUE)
-    
-    if (dir.exists(folder_path)) {
-      print(paste("Folder", folder_path, "was successfully created."))
-    } else {
-      stop(paste("Failed to create folder:", folder_path))
+  tryCatch(
+    {
+      check_folder_exists(folder_path)
+      print(paste("Folder", folder_path, "already exists."))
+    },
+    error = function(e) {
+      # If the folder does not exist, create it
+      print(paste("Folder does not exist. Creating folder:", folder_path))
+      dir.create(folder_path, recursive = TRUE)
+
+      if (dir.exists(folder_path)) {
+        print(paste("Folder", folder_path, "was successfully created."))
+      } else {
+        stop(paste("Failed to create folder:", folder_path))
+      }
     }
-  })
+  )
 }
 
 read_csv <- function(file_path, ...) {
@@ -140,17 +142,20 @@ read_csv <- function(file_path, ...) {
   #
   # Raises:
   #   Error if the file does not exist or cannot be read.
-  
+
   # Check if the file exists
   check_file_exists(file_path, paste("CSV file not found:", file_path))
-  
+
   # Try reading the CSV file with additional arguments
-  tryCatch({
-    data <- read.csv(file_path, stringsAsFactors = FALSE, ...)
-    return(data)
-  }, error = function(e) {
-    stop(paste("Failed to read CSV file:", file_path, "\nError:", e$message))
-  })
+  tryCatch(
+    {
+      data <- read.csv(file_path, stringsAsFactors = FALSE, ...)
+      return(data)
+    },
+    error = function(e) {
+      stop(paste("Failed to read CSV file:", file_path, "\nError:", e$message))
+    }
+  )
 }
 
 write_csv <- function(data, file_path, ...) {
@@ -166,13 +171,16 @@ write_csv <- function(data, file_path, ...) {
   #
   # Raises:
   #   Error if the file cannot be written.
-  
-  tryCatch({
-    write.csv(data, file = file_path, ...)
-    print(paste("CSV file successfully written to:", file_path))
-  }, error = function(e) {
-    stop(paste("Failed to write CSV file:", file_path, "\nError:", e$message))
-  })
+
+  tryCatch(
+    {
+      write.csv(data, file = file_path, ...)
+      print(paste("CSV file successfully written to:", file_path))
+    },
+    error = function(e) {
+      stop(paste("Failed to write CSV file:", file_path, "\nError:", e$message))
+    }
+  )
 }
 
 write_excel <- function(file_path, data, ...) {
@@ -180,11 +188,11 @@ write_excel <- function(file_path, data, ...) {
   if (!inherits(data, "data.frame")) {
     stop("The 'data' argument must be a data.frame or tibble.")
   }
-  
+
   # Normalize and validate file path
   file_path <- normalizePath(file_path, winslash = "/", mustWork = FALSE)
   print(paste("Normalized file path:", file_path))
-  
+
   if (!grepl("\\.xlsx$", file_path, ignore.case = TRUE)) {
     stop("The file path must end with '.xlsx'.")
   }
@@ -201,21 +209,24 @@ write_excel <- function(file_path, data, ...) {
   if_sheet_exists <- if (!is.null(args$if_sheet_exists)) args$if_sheet_exists else "replace"
   print(paste("Sheet name:", sheet_name))
   print(paste("If sheet exists:", if_sheet_exists))
-  
+
   # Check if file exists
   file_exists <- file.exists(file_path)
   print(paste("File exists:", file_exists))
-  
+
   wb_data <- list()
 
   if (file_exists) {
     # Load existing workbook
-    tryCatch({
-      sheet_names <- readxl::excel_sheets(file_path)
-      wb_data <- map(setNames(sheet_names, sheet_names), ~ readxl::read_excel(file_path, sheet = .x))
-    }, error = function(e) {
-      stop(paste("Failed to read existing Excel file. Error:", e$message))
-    })
+    tryCatch(
+      {
+        sheet_names <- readxl::excel_sheets(file_path)
+        wb_data <- map(setNames(sheet_names, sheet_names), ~ readxl::read_excel(file_path, sheet = .x))
+      },
+      error = function(e) {
+        stop(paste("Failed to read existing Excel file. Error:", e$message))
+      }
+    )
   }
 
   # Handle sheet existence
@@ -230,14 +241,17 @@ write_excel <- function(file_path, data, ...) {
   } else {
     wb_data[[sheet_name]] <- data
   }
-  
+
   # Write the data to the Excel file
-  tryCatch({
-    writexl::write_xlsx(wb_data, path = file_path)
-    message(paste("Data successfully written to:", file_path, "in sheet:", sheet_name))
-  }, error = function(e) {
-    stop(paste("Failed to save workbook at:", file_path, "\nError:", e$message))
-  })
+  tryCatch(
+    {
+      writexl::write_xlsx(wb_data, path = file_path)
+      message(paste("Data successfully written to:", file_path, "in sheet:", sheet_name))
+    },
+    error = function(e) {
+      stop(paste("Failed to save workbook at:", file_path, "\nError:", e$message))
+    }
+  )
 }
 
 read_excel <- function(file_path, ...) {
@@ -251,7 +265,7 @@ read_excel <- function(file_path, ...) {
   if (!file.exists(file_path)) {
     stop(paste("The file does not exist:", file_path))
   }
-  
+
   # Load the workbook
   wb <- tryCatch(
     wb_load(file_path),
@@ -259,14 +273,14 @@ read_excel <- function(file_path, ...) {
       stop(paste("Failed to load the Excel file:", file_path, "\nError:", e$message))
     }
   )
-  
+
   # Retrieve sheet names
   sheet_names <- wb$sheet_names
   print(paste("Sheet names in the workbook:", toString(sheet_names)))
-  
+
   # Extract additional arguments
   args <- list(...)
-  sheet_name <- if (!is.null(args$sheet_name)) args$sheet_name else sheet_names[1]  # Default to the first sheet
+  sheet_name <- if (!is.null(args$sheet_name)) args$sheet_name else sheet_names[1] # Default to the first sheet
   if (!sheet_name %in% sheet_names) {
     stop(paste("The specified sheet does not exist:", sheet_name))
   }
@@ -278,7 +292,7 @@ read_excel <- function(file_path, ...) {
       stop(paste("Failed to read the sheet:", sheet_name, "\nError:", e$message))
     }
   )
-  
+
   # Return the data
   return(data)
 }
