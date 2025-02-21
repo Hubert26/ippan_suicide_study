@@ -1,0 +1,373 @@
+# mappings.yaml
+
+column_mappings:
+  "2013_2022":
+    "ID samobójcy": "ID"
+    "Data raportu [RRRRMM]": "Date"
+    "Przedział wiekowy": "AgeGroup"
+    "Płeć": "Gender"
+    "Stan cywilny": "Marital"
+    "Wykształcenie": "Education"
+    "Informacje o pracy i nauce": "WorkInfo"
+    "Źródło utrzymania": "Income"
+    "Czy samobójstwo zakończyło się zgonem": "Fatal"
+    "Miejsce zamachu": "Place"
+    "Sposób popełnienia": "Method"
+    "Stan świadomości": "Substance"
+    "Informacje dotyczące leczenia z powodu alkoholizmu/narkomanii": "AbuseInfo2"
+    "Powód zamachu": "Context1"
+    "Powód zamachu 2": "Context2"
+    "Powód zamachu 3": "Context3"
+    "Powód zamachu 4": "Context4"
+    "Informacje o używaniu substancji": "AbuseInfo1"
+
+  "2023":
+    "ID samobójcy": "ID"
+    "Data rejestracji": "Date"
+    "Przedział wiekowy": "AgeGroup"
+    "Płeć": "Gender"
+    "Stan cywilny": "Marital"
+    "Wykształcenie": "Education"
+    "Informacje o pracy i nauce": "WorkInfo"
+    "Źródło utrzymania": "Income"
+    "Czy samobójstwo zakończyło się zgonem": "Fatal"
+    "Miejsce zamachu": "Place"
+    "Sposób popełnienia": "Method"
+    "Stan świadomości *": "Substance"
+    "Informacje dotyczące leczenia z powodu alkoholizmu/narkomanii": "AbuseInfo1"
+    "Powód zamachu *": "Context1"
+    "Powód zamachu 2": "Context2"
+    "Powód zamachu 3": "Context3"
+    "Powód zamachu 4": "Context4"
+    "Informacje dotyczące stanu zdrowia *": "AbuseInfo2"
+
+value_mappings:
+  "2013_2022":
+    "AgeGroup":
+      0: null
+      1: "07_12"
+      2: "13_18"
+      3: "19_24"
+      4: "25_29"
+      5: "30_34"
+      6: "35_39"
+      7: "40_44"
+      8: "45_49"
+      9: "50_54"
+      10: "55_59"
+      11: "60_64"
+      12: "65_69"
+      13: "70_74"
+      14: "75_79"
+      15: "80_84"
+      16: "85"
+
+    "Gender":
+      0: null
+      1: "F"
+      2: "M"
+
+    "Marital":
+      0: null
+      1: "Single"
+      2: "Cohabitant"
+      3: "Married"
+      4: "Separated"
+      5: "Divorced"
+      6: "Widowed"
+
+    "Education":
+      0: null
+      1: "PrePrimary"
+      2: "Primary"
+      3: "Secondary"
+      4: "Vocational"
+      5: "Secondary"
+      6: "Secondary"
+      7: "Higher"
+
+    "WorkInfo":
+      0: null
+      1: "Student"
+      2: "Student"
+      3: "Employed"
+      4: "Employed"
+      5: "Agriculturalist"
+      6: "Employed"
+      7: "Employed"
+      8: "Employed"
+      9: "Unemployed"
+
+    "Income":
+      0: null
+      1: "Dependent"
+      2: "Steady"
+      3: "Benefits"
+      4: "NoSteady"
+
+    "Fatal":
+      0: null
+      1.0: 1
+      2.0: 0
+
+    "Place":
+      0: null
+      1: "Road"
+      2: "UtilitySpaces"
+      3: "House"
+      4: "Railway"
+      5: "Forest"
+      6: "House"
+      7: "WaterRes"
+      8: "Work"
+      9: "Institution"
+      10: "Isolation"
+      11: "PoliceArmy"
+      12: "Institution"
+      13: "School"
+      14: "PoliceArmy"
+      15: "Other"
+
+    "Method":
+      0: null
+      1: "Vehicle"
+      2: "Jumping"
+      3: "Hanging"
+      4: "SelfHarm"
+      5: "Shooting"
+      6: "SelfHarm"
+      7: "SelfHarm"
+      8: "Drugs"
+      9: "Poisoning"
+      10: "Gas"
+      11: "Drugs"
+      12: "Poisoning"
+      13: "Drugs"
+      14: "Drugs"
+      15: "Drowning"
+      16: "SelfHarm"
+      17: "Other"
+      18: "Other"
+
+    "Substance":
+      0: null
+      1: "Sober"
+      2: "Alco"
+      3: "OtherSub"
+      4: "OtherSub"
+      5: "OtherSub"
+      6: "OtherSub"
+      7: "AlcoOtherSub"
+      8: "AlcoOtherSub"
+      9: "AlcoOtherSub"
+      10: "AlcoOtherSub"
+      11: "AlcoOtherSub"
+      12: "OtherSub"
+      13: "OtherSub"
+      14: "OtherSub"
+      15: "OtherSub"
+      16: "OtherSub"
+      17: "AlcoOtherSub"
+      18: "AlcoOtherSub"
+
+    "Context":
+      0: null
+      1: "HeartBreak"
+      2: "MentalHealth"
+      3: "FamilyConflict"
+      4: "HealthLoss"
+      5: "Finances"
+      6: "Finances"
+      7: "HealthLoss"
+      8: "SchoolWork"
+      9: "CloseDeath"
+      10: "Crime"
+      11: "Disability"
+      12: "Other"
+      13: "HealthLoss"
+      14: "HealthLoss"
+      15: "SchoolWork"
+      16: "Finances"
+      17: "SchoolWork"
+      18: "Other"
+
+    "AbuseInfo1":
+      0: null
+      1: "Alco"
+      2: "OtherSub"
+      3: "OtherSub"
+      4: "AlcoOtherSub"
+      5: "OtherSub"
+      6: "AlcoOtherSub"
+      7: "AlcoOtherSub"
+
+    "AbuseInfo2":
+      0: null
+      1: "Alco"
+      2: "OtherSub"
+      3: "AlcoOtherSub"
+
+  "2023":
+    "AgeGroup":
+      "7-12": "07_12"
+      "13-18": "13_18"
+      "19-24": "19_24"
+      "25-29": "25_29"
+      "30-34": "30_34"
+      "35-39": "35_39"
+      "40-44": "40_44"
+      "45-49": "45_49"
+      "50-54": "50_54"
+      "55-59": "55_59"
+      "60-64": "60_64"
+      "65-69": "65_69"
+      "70-74": "70_74"
+      "75-79": "75_79"
+      "80-84": "80_84"
+      "85+": "85"
+      "Nieustalony wiek": null
+
+    "Gender":
+      "M": "M"
+      "Mężczyzna": "M"
+      "K": "F"
+      "Kobieta": "F"
+
+    "Marital":
+      "Kawaler/panna": "Single"
+      "Żonaty/zamężna": "Married"
+      "Wdowiec/wdowa": "Widowed"
+      "Rozwiedziony/rozwiedziona": "Divorced"
+      "W separacji": "Separated"
+      "Konkubent/konkubina": "Cohabiting"
+      "Brak danych/nieustalony": null
+
+    "Education":
+      "Podstawowe": "Primary"
+      "Gimnazjalne": "LowerSecondary"
+      "Zasadnicze zawodowe": "Vocational"
+      "Średnie": "Secondary"
+      "Wyższe": "Higher"
+      "Brak danych/nieustalony": null
+      "Nie dotyczy": null
+
+    "WorkInfo":
+      "Brak danych/nieustalono": null
+      "Uczeń": "Student"
+      "Student": "Student"
+      "Rolnik": "Agriculturalist"
+      "Pracujący na własny rachunek/samodzielna działalność gospodarcza": "Employed"
+      "Praca stała": "Employed"
+      "Praca dorywcza": "Employed"
+      "Bezrobotny": "Unemployed"
+
+    "Income":
+      "Brak danych/nieustalony": null
+      "Na utrzymaniu innej osoby": "Dependent"
+      "Praca": "Steady"
+      "Emerytura": "Benefits"
+      "Renta": "Benefits"
+      "Zasiłek/alimenty": "Benefits"
+      "Nie ma stałego źródła utrzymania": "NoSteady"
+
+    "Fatal":
+      "T": 1
+      "N": 0
+
+    "Place":
+      "Droga/ulica/chodnik": "Road"
+      "Zabudowania gospodarcze": "UtilitySpaces"
+      "Mieszkanie/dom": "House"
+      "Teren kolei/tory": "Railway"
+      "Park, las": "Forest"
+      "Garaż/piwnica/strych": "House"
+      "Rzeka/jezioro/inny zbiornik wodny": "WaterRes"
+      "Zakład pracy": "Work"
+      "Placówka lecznicza lub sanatoryjna": "Institution"
+      "Miejsce prawnej izolacji": "Isolation"
+      "Obiekt wojskowy": "PoliceArmy"
+      "Placówka wychowawczo-opiekuńcza": "Institution"
+      "Szkoła/uczelnia": "School"
+      "Obiekt policyjny": "PoliceArmy"
+      "Inne": "Other"
+
+    "Method":
+      "Rzucenie się pod pojazd w ruchu": "Vehicle"
+      "Rzucenie się z wysokości": "Jumping"
+      "Powieszenie się": "Hanging"
+      "Uszkodzenie układu krwionośnego": "SelfHarm"
+      "Zastrzelenie się/użycie broni palnej": "Shooting"
+      "Samookaleczenie powierzchowne": "SelfHarm"
+      "Zażycie środków nasennych/leków psychotropowych": "Drugs"
+      "Zatrucie gazem/spalinami": "Gas"
+      "Zażycie innych leków": "Drugs"
+      "Zatrucie środkami chemicznymi/toksycznymi": "Poisoning"
+      "Zatrucie środkami odurzającymi": "Drugs"
+      "Zatrucie dopalaczami": "Drugs"
+      "Utonięcie/utopienie się": "Drowning"
+      "Samopodpalenie": "SelfHarm"
+      "Uduszenie się": "Other"
+      "Inny": "Other"
+
+    "Substance":
+      "Brak danych/nieustalony": null
+      "Trzeźwy(a)": "Sober"
+      "Pod wpływem alkoholu": "Alco"
+      "Pod wpływem zastępczych środków/substancji (dopalaczy)": "OtherSub"
+      "Pod wpływem leków": "OtherSub"
+      "Pod wpływem środków odurzających": "OtherSub"
+      "Pod wpływem alkoholu i zastępczych środków/substancji (dopalaczy)": "AlcoOtherSub"
+      "Pod wpływem alkoholu zastępczych środków/substancji (dopalaczy)": "AlcoOtherSub"
+      "Pod wpływem alkoholu i leków": "AlcoOtherSub"
+      "Pod wpływem alkoholu i środków odurzających": "AlcoOtherSub"
+      "Pod wpływem leków i środków odurzających": "OtherSub"
+      "Pod wpływem alkoholu, leków i środków odurzających": "AlcoOtherSub"
+
+    "Context":
+      "Nieustalony": null
+      "Zawód miłosny": "HeartBreak"
+      "Leczony(a) psychiatrycznie": "MentalHealth"
+      "Nieporozumienie rodzinne/przemoc w rodzinie": "FamilyConflict"
+      "Nosiciel wirusa HIV, chory na AIDS": "HealthLoss"
+      "Nagła utrata źródła utrzymania": "Finances"
+      "Złe warunki ekonomiczne/długi": "Finances"
+      "Choroba psychiczna/zaburzenia psychiczne": "MentalHealth"
+      "Problemy w szkole lub pracy": "SchoolWork"
+      "Śmierć bliskiej osoby": "CloseDeath"
+      "Dokonanie przestępstwa lub wykroczenia": "Crime"
+      "Trwałe kalectwo": "Disability"
+      "Niepożądana ciąża": "Other"
+      "Choroba fizyczna": "HealthLoss"
+      "Pogorszenie lub nagła utrata zdrowia": "HealthLoss"
+      "Konflikt z osobami spoza rodziny": "SchoolWork"
+      "Zagrożenie lub utrata miejsca zamieszkania": "Finances"
+      "Mobbing, cybermobbing, znęcanie": "SchoolWork"
+      "Inny niewymieniony powyżej": "Other"
+
+    "AbuseInfo1":
+      "Leczony(a) psychiatrycznie": null
+      "Nadużywał(a) alkoholu": "Alco"
+      "Leczony(a) z powodu alkoholizmu": "Alco"
+      "Leczony(a) z powodu narkomanii": "OtherSub"
+      "Leczony(a) z powodu alkoholizmu i narkomanii": "AlcoOtherSub"
+
+
+    "AbuseInfo2":
+      "Brak danych/nieustalono": null
+      "Nadużywał(a) alkoholu": "Alco"
+      "Leczony(a) psychiatrycznie": null
+      "Leczony(a) z powodu alkoholizmu": "Alco"
+      "Choroba fizyczna": null
+      "Trwałe kalectwo": null
+      "Zatrzymany(a) w izbie wytrzeźwień": "Alco"
+      "Nadużywał(a) alkoholu i narkotyków": "AlcoOtherSub"
+      "Nadużywał(a) alkoholu i nakrotyków": "AlcoOtherSub"
+      "Leczony(a) z powodu narkomanii": "OtherSub"
+      "Używał dopalaczy i narkotyków": "OtherSub"
+      "Nadużywał(a) alkoholu i narkotykó": "OtherSub"
+      "Nadużywał(a) alkoholu, dopalaczy i narkotyków": "AlcoOtherSub"
+      "Nadużywał(a) alkoholu, narkotyków i dopalaczy": "AlcoOtherSub"
+      "Nadużywał(a) alkoholu i dopalaczy": "AlcoOtherSub"
+      "Używał dopalaczy": "OtherSub"
+      "Nadużywał(a) alkoholu, dopalaczy, narkotyków": "AlcoOtherSub"
+      "Leczony(a) psychiatrycznie, nadużywał(a) alkoholu": "Alco"

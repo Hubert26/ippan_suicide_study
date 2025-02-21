@@ -48,6 +48,7 @@ Ensure you have Docker and Docker Compose installed on your system.
     ```bash
     docker compose up --build
     ```
+    
 This will:
 + Create a container with all necessary dependencies for Python, R, and Jupyter Notebook.
 + Install all packages specified in environment.yml.

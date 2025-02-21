@@ -20,80 +20,12 @@ Main Steps:
 import pandas as pd
 from typing import List, Tuple
 
-from src.helpers.utils import read_csv, write_csv
-from src.helpers.config import DATA_DIR
+from src.utils.utils import read_csv, write_csv
+from settings.settings import AGE_MAPPING, AGE_GENDER_MAPPING, AGE_FATALITY_MAPPING, AGE_GENDER_FATALITY_MAPPING
+from config.config import DATA_DIR
 
-# ==============================================================================
-# Constants and Configuration
-# ==============================================================================
 REQUIRED_COLUMNS = ["ID", "AgeGroup", "Gender", "Fatal"]
 
-AGE_MAPPING = {
-    "07_12": "00_18",
-    "13_18": "00_18",
-    "19_24": "19_34",
-    "25_29": "19_34",
-    "30_34": "19_34",
-    "35_39": "35_64",
-    "40_44": "35_64",
-    "45_49": "35_64",
-    "50_54": "35_64",
-    "55_59": "35_64",
-    "60_64": "35_64",
-    "65_69": "65",
-    "70_74": "65",
-    "75_79": "65",
-    "80_84": "65",
-    "85": "65",
-}
-
-AGE_GENDER_MAPPING = [
-    ("00_18", "F"),
-    ("00_18", "M"),
-    ("19_34", "F"),
-    ("19_34", "M"),
-    ("35_64", "F"),
-    ("35_64", "M"),
-    ("65", "F"),
-    ("65", "M"),
-]
-
-
-AGE_FATALITY_MAPPING = [
-    ("00_18", 0),
-    ("00_18", 1),
-    ("19_34", 0),
-    ("19_34", 1),
-    ("35_64", 0),
-    ("35_64", 1),
-    ("65", 0),
-    ("65", 1),
-]
-
-AGE_GENDER_FATALITY_MAPPING = [
-    ("00_18", "F", 0),
-    ("00_18", "F", 1),
-    ("00_18", "M", 0),
-    ("00_18", "M", 1),
-    ("19_34", "F", 0),
-    ("19_34", "F", 1),
-    ("19_34", "M", 0),
-    ("19_34", "M", 1),
-    ("35_64", "F", 0),
-    ("35_64", "F", 1),
-    ("35_64", "M", 0),
-    ("35_64", "M", 1),
-    ("65", "F", 0),
-    ("65", "F", 1),
-    ("65", "M", 0),
-    ("65", "M", 1),
-]
-
-
-# %%
-# ==============================================================================
-# Helper Functions
-# ==============================================================================
 def map_to_groups(
     df: pd.DataFrame,
     group_column: str,
@@ -132,10 +64,6 @@ def map_to_groups(
     return df
 
 
-# %%
-# ==============================================================================
-# Main Processing Logic
-# ==============================================================================
 def run_group_mapping(df: pd.DataFrame) -> pd.DataFrame:
     """
     Perform group mapping on a dataset to create new categorical group columns.

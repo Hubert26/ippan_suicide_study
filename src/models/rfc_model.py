@@ -3,7 +3,7 @@ from sklearn.ensemble import RandomForestClassifier
 import pandas as pd
 import numpy as np
 
-from src.helpers.utils import (
+from src.utils.utils import (
     read_csv,
     split_string,
 )
@@ -13,7 +13,7 @@ from src.models.ml_utils import (
     compute_permutation_importance,
     compute_mean_decrease_accuracy,
 )
-from src.helpers.config import DATA_DIR, RESULTS_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
+from config.config import DATA_DIR, RESULTS_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
 
 
 # Read encoded data

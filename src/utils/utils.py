@@ -1,10 +1,45 @@
 from dotenv import dotenv_values
+import yaml
+from yaml import YAMLError
 import os
 from typing import Optional, List, Dict
 from pathlib import Path
 import pandas as pd
 
+def load_yaml(file_path: Path):
+    """
+    Helper function to load a YAML configuration file.
 
+    Args:
+        file_path (Path): Path to the YAML file.
+
+    Returns:
+        dict: Parsed YAML content as a dictionary.
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IsADirectoryError: If the path is a directory, not a file.
+        PermissionError: If the file cannot be read due to permission issues.
+        YAMLError: If there is an error parsing the YAML file.
+    """
+    # Check if the path is a file (not a directory)
+    if not file_path.exists():
+        raise FileNotFoundError(f"YAML file not found: {file_path}")
+    if not file_path.is_file():
+        raise IsADirectoryError(f"Path is a directory, not a file: {file_path}")
+
+    # Attempt to open and parse the YAML file
+    try:
+        with open(file_path, "r") as file:
+            data = yaml.safe_load(file)
+            if data is None:
+                data = {}  # Return an empty dictionary if YAML file is empty
+            return data
+    except PermissionError as e:
+        raise PermissionError(f"Permission denied when accessing: {file_path}") from e
+    except YAMLError as e:
+        raise YAMLError(f"Error parsing YAML file: {file_path}") from e
+    
 def load_environment_variables(
     env_file_path: str = ".env",
     required_vars: Optional[List[str]] = None,

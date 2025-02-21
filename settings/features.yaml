@@ -1,9 +1,4 @@
-# settings.yaml
-paths:
-  data: "data"
-  results: "results"
-  plots: "plots"
-
+# features.yaml
 moment_of_suicide_features:
   - Method
   - Substance

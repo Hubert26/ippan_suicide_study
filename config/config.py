@@ -1,11 +1,10 @@
 # config.py
 """Project configuration settings."""
 
-import yaml
 import sys
 from dotenv import dotenv_values
 from pathlib import Path
-
+import yaml
 
 # Load environment variables from the .env file
 env_vars = dotenv_values() 
@@ -20,31 +19,34 @@ if not PROJECT_ROOT.exists():
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.append(str(PROJECT_ROOT))
 
-# Load settings from `settings.yaml`
-with open("settings.yaml", "r") as f:
-    settings = yaml.safe_load(f)
+CONFIG_DIR = Path(__file__).parent  # Absolute path to config/
+CONFIG_SETTINGS_PATH = CONFIG_DIR / "config.yaml"  # Path to config.yaml
 
-# Assign paths
-DATA_DIR = PROJECT_ROOT / settings["paths"]["data"]
-RESULTS_DIR = PROJECT_ROOT / settings["paths"]["results"]
-PLOTS_DIR = PROJECT_ROOT / settings["paths"]["plots"]
-MOMENT_OF_SUICIDE_FEATURES = settings["moment_of_suicide_features"]
-SOCIO_DEMOGRAPHIC_FEATURES = settings["socio_demographic_features"]
+def load_yaml(file_path: Path):
+    """Helper function to load a YAML configuration file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"YAML file not found: {file_path}")
+    with open(file_path, "r") as file:
+        return yaml.safe_load(file)
+    
+# Loaging paths
+CONFIGS = load_yaml(CONFIG_SETTINGS_PATH)
+
+DATA_DIR = PROJECT_ROOT / CONFIGS["paths"]["data"]
+RESULTS_DIR = PROJECT_ROOT / CONFIGS["paths"]["results"]
+PLOTS_DIR = PROJECT_ROOT / CONFIGS["paths"]["plots"]
 
 # Ensure directories exist before proceeding
 for directory in [DATA_DIR, RESULTS_DIR, PLOTS_DIR]:
     if not directory.exists():
         directory.mkdir(parents=True, exist_ok=True)
-
+    
 # Print configuration (useful for debugging)
-def print_config(): 
+def print_paths(): 
     print("PROJECT_ROOT:", PROJECT_ROOT, "\n")
     print("DATA_DIR:", DATA_DIR, "\n")
     print("RESULTS_DIR:", RESULTS_DIR, "\n")
     print("PLOTS_DIR:", PLOTS_DIR, "\n")
-    print("MOMENT_OF_SUICIDE_FEATURES:", MOMENT_OF_SUICIDE_FEATURES, "\n")
-    print("SOCIO_DEMOGRAPHIC_FEATURES:", SOCIO_DEMOGRAPHIC_FEATURES, "\n")
-
-
+    
 if __name__ == "__main__":
-    print_config()
+    print_paths()

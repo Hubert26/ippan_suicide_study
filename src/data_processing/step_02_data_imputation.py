@@ -4,14 +4,8 @@ Data imputation module for handling missing values in suicide study dataset.
 
 import pandas as pd
 import numpy as np
-
-from src.helpers.utils import read_csv, write_csv, split_string
+from src.helpers.utils import read_csv, write_csv
 from src.helpers.config import DATA_DIR
-
-# ================================================================================
-# IMPUTATION FUNCTIONS
-# ================================================================================
-
 
 def get_neighboring_age_groups(age_groups, current_age_group):
     """
@@ -88,9 +82,6 @@ def fill_missing_values_by_probability(dataframe, column_name):
     return dataframe
 
 
-# ================================================================================
-# MAIN
-# ================================================================================
 def run_data_imputation(df: pd.DataFrame) -> pd.DataFrame:
     """
     Perform data imputation on the given DataFrame.

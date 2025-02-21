@@ -7,15 +7,10 @@ This module includes:
 import pandas as pd
 from typing import List, Optional
 
-from src.helpers.utils import read_csv, write_csv
-from src.helpers.config import DATA_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
+from src.utils.utils import read_csv, write_csv
+from config.config import DATA_DIR
+from settings.settings import MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
 
-
-
-# %%
-# ==============================================================================
-# Helper Functions
-# ==============================================================================
 def perform_one_hot_encoding(
     df: pd.DataFrame, columns_to_encode: Optional[List[str]] = None
 ) -> pd.DataFrame:
@@ -67,10 +62,6 @@ def perform_one_hot_encoding(
     return final_df
 
 
-# %%
-# ==============================================================================
-# Main Logic
-# ==============================================================================
 def run_data_encoding(df: pd.DataFrame) -> pd.DataFrame:
     """
     Perform data encoding on the given DataFrame.
@@ -100,7 +91,6 @@ if __name__ == "__main__":
     csv_file_path = DATA_DIR / "processed" / "imputed_data.csv"
     df_raw = read_csv(csv_file_path, delimiter=",", low_memory=False)
 
-    # Run feature engineering
     df_encoded = run_data_encoding(df_raw)
 
     # Save the encoded data

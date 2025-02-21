@@ -10,8 +10,8 @@ import statsmodels.api as sm
 from sklearn.utils.class_weight import compute_class_weight
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from src.helpers.utils import read_excel, write_excel, read_csv
-from src.helpers.config import DATA_DIR, RESULTS_DIR
+from src.utils.utils import read_excel, write_excel, read_csv
+from config.config import DATA_DIR, RESULTS_DIR
 
 # ================================================================================
 # Data reading
