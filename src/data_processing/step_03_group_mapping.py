@@ -17,14 +17,21 @@ Main Steps:
    - Age, gender, and fatality (`Group_AGF`).
 """
 
-import pandas as pd
 from typing import List, Tuple
 
-from src.utils.utils import read_csv, write_csv
-from settings.settings import AGE_MAPPING, AGE_GENDER_MAPPING, AGE_FATALITY_MAPPING, AGE_GENDER_FATALITY_MAPPING
+import pandas as pd
+
 from config.config import DATA_DIR
+from settings.settings import (
+    AGE_FATALITY_MAPPING,
+    AGE_GENDER_FATALITY_MAPPING,
+    AGE_GENDER_MAPPING,
+    AGE_MAPPING,
+)
+from src.utils.utils import read_csv, write_csv
 
 REQUIRED_COLUMNS = ["ID", "AgeGroup", "Gender", "Fatal"]
+
 
 def map_to_groups(
     df: pd.DataFrame,

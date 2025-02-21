@@ -12,7 +12,9 @@
     "ikuyadeu.r",
     "rdebugger.r-debugger",
     "ms-toolsai.datawrangler",
-    "REditorSupport.r"
+    "REditorSupport.r",
+    "charliermarsh.ruff",
+    "ms-python.black-formatter"
   ],
   "remoteUser": "root"
 }

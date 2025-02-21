@@ -7,20 +7,18 @@ feature importances, and model validation techniques for machine learning models
 This file contains utility functions for machine learning model evaluation and metrics calculation.
 """
 
-import pandas as pd
-import numpy as np
 from typing import Tuple
 
-
+import numpy as np
+import pandas as pd
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import (
     accuracy_score,
+    f1_score,
     precision_score,
     recall_score,
-    f1_score,
 )
-
-from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.inspection import permutation_importance
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 
 # %%

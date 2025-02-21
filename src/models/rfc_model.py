@@ -1,20 +1,22 @@
-from sklearn.utils.class_weight import compute_class_weight
-from sklearn.ensemble import RandomForestClassifier
-import pandas as pd
 import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.utils.class_weight import compute_class_weight
 
-from src.utils.utils import (
-    read_csv,
-    split_string,
+from config.config import (
+    DATA_DIR,
+    MOMENT_OF_SUICIDE_FEATURES,
+    RESULTS_DIR,
+    SOCIO_DEMOGRAPHIC_FEATURES,
 )
 from src.models.ml_utils import (
-    validate_model,
-    run_stratified_kfold,
-    compute_permutation_importance,
     compute_mean_decrease_accuracy,
+    compute_permutation_importance,
+    run_stratified_kfold,
 )
-from config.config import DATA_DIR, RESULTS_DIR, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
-
+from src.utils.utils import (
+    read_csv,
+)
 
 # Read encoded data
 csv_file_path = DATA_DIR / "processed" / "encoded_data.csv"

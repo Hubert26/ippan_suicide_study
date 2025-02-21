@@ -2,10 +2,12 @@
 Data imputation module for handling missing values in suicide study dataset.
 """
 
-import pandas as pd
 import numpy as np
-from src.helpers.utils import read_csv, write_csv
+import pandas as pd
+
 from src.helpers.config import DATA_DIR
+from src.helpers.utils import read_csv, write_csv
+
 
 def get_neighboring_age_groups(age_groups, current_age_group):
     """

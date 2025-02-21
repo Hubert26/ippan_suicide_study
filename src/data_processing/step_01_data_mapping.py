@@ -1,13 +1,20 @@
 """Data mapping module for standardizing and transforming suicide study dataset.
 Handles data from both 2023 and 2013-2022 periods."""
 
+from typing import Dict, List, Optional
+
 import pandas as pd
-from typing import List, Dict, Optional
 
-from src.utils.utils import read_csv, write_csv, read_excel
 from config.config import DATA_DIR
-from settings.settings import COLUMN_MAPPINGS_2013_2022, COLUMN_MAPPINGS_2023, VALUE_MAPPINGS_2013_2022, VALUE_MAPPINGS_2023, MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
-
+from settings.settings import (
+    COLUMN_MAPPINGS_2013_2022,
+    COLUMN_MAPPINGS_2023,
+    MOMENT_OF_SUICIDE_FEATURES,
+    SOCIO_DEMOGRAPHIC_FEATURES,
+    VALUE_MAPPINGS_2013_2022,
+    VALUE_MAPPINGS_2023,
+)
+from src.utils.utils import read_csv, read_excel, write_csv
 
 PREXES_TO_RETAIN = (
     MOMENT_OF_SUICIDE_FEATURES + SOCIO_DEMOGRAPHIC_FEATURES + ["ID", "Date", "AgeGroup"]

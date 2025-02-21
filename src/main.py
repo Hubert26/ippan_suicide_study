@@ -1,11 +1,16 @@
+from config.config import (
+    COLUMN_MAPPINGS_2013_2022,
+    COLUMN_MAPPINGS_2023,
+    DATA_DIR,
+    VALUE_MAPPINGS_2013_2022,
+    VALUE_MAPPINGS_2023,
+)
+from logs.logger import logger
 from src.data_processing.step_01_data_mapping import run_data_mapping
 from src.data_processing.step_02_data_imputation import run_data_imputation
-from src.data_processing.step_03_group_mapping import run_group_mapping
 from src.data_processing.step_03_data_encoding import run_data_encoding
-from logs.logger import logger
+from src.data_processing.step_03_group_mapping import run_group_mapping
 from src.utils.utils import read_csv, read_excel
-from config.config import DATA_DIR
-from config.config import COLUMN_MAPPINGS_2013_2022, COLUMN_MAPPINGS_2023, VALUE_MAPPINGS_2013_2022, VALUE_MAPPINGS_2023
 
 
 def main():

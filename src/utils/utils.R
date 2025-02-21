@@ -296,3 +296,7 @@ read_excel <- function(file_path, ...) {
   # Return the data
   return(data)
 }
+
+print( "test" )
+library(styler)
+styler::style_file("utils.R")

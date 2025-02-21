@@ -7,11 +7,11 @@ Created on Sun Nov 24 19:57:12 2024
 
 import pandas as pd
 import statsmodels.api as sm
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
 from sklearn.utils.class_weight import compute_class_weight
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
-from src.utils.utils import read_excel, write_excel, read_csv
 from config.config import DATA_DIR, RESULTS_DIR
+from src.utils.utils import read_csv, read_excel, write_excel
 
 # ================================================================================
 # Data reading

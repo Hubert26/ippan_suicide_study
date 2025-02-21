@@ -6,7 +6,7 @@ target-version = ["py311"]
 [tool.ruff]
 line-length = 88
 select = ["E", "F", "W"]
-ignore = ["W503", "E501"]  # Ignor conflicts with Black
+ignore = ["E501"]  # Ignor conflicts with Black
 target-version = "py311"
 fix = true
 

@@ -4,12 +4,15 @@ Data encoding module for encoding features from the imputed suicide study datase
 This module includes:
 - Performing one-hot encoding on categorical variables.
 """
-import pandas as pd
+
 from typing import List, Optional
 
-from src.utils.utils import read_csv, write_csv
+import pandas as pd
+
 from config.config import DATA_DIR
 from settings.settings import MOMENT_OF_SUICIDE_FEATURES, SOCIO_DEMOGRAPHIC_FEATURES
+from src.utils.utils import read_csv, write_csv
+
 
 def perform_one_hot_encoding(
     df: pd.DataFrame, columns_to_encode: Optional[List[str]] = None
