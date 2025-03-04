@@ -1,0 +1,21 @@
+# Ignore Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore VS Code settings
+.vscode/
+
+# Ignore logs and temporary files
+logs/
+*.log
+
+# Ignore Conda environment cache
+env/

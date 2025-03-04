@@ -1,0 +1,5 @@
+# config.yaml
+paths:
+  data: "data"
+  results: "results"
+  plots: "plots"

@@ -1,0 +1,15 @@
+# pyproject.toml
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+select = ["E", "F", "W"]
+ignore = ["E501"]  # Ignor conflicts with Black
+target-version = "py311"
+fix = true
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"

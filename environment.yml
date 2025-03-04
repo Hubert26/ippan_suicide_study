@@ -1,0 +1,36 @@
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # Python packages
+  - python=3.11.11
+  - python-dotenv=0.21.0
+  - pandas=2.2.3
+  - openpyxl=3.1.5
+  - xlsxwriter
+  - jupyter=1.0.0
+  - scikit-learn=1.5.1
+  - statsmodels=0.14.4
+  - matplotlib=3.8.2
+  - matplotlib-inline=0.1.6
+  - pyyaml  
+  - rpy2=3.5.11
+  
+  # R packages
+  - r-base=4.2
+  - r-here=1.0.1
+  - r-polca=1.6.0.1
+  - r-writexl
+  - r-readxl
+  - r-dplyr
+  - r-tidyr
+  - r-readr
+  - r-glue
+  - r-irkernel
+  - r-yaml
+  - r-dotenv
+  - r-fs
+
+  # Development tools
+  - ruff
+  - black
